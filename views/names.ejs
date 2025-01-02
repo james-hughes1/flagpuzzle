@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Names List</title>
+</head>
+<body>
+  <h1>Names List</h1>
+  <ul>
+    <% namesList.forEach(name => { %>
+      <li><%= name.firstName %></li>
+    <% }); %>
+  </ul>
+  <a href="/enter-name">
+    <button>Enter Another Name</button>
+  </a>
+</body>
+</html>

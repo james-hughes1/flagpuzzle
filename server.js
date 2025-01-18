@@ -8,23 +8,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 // Routes
-// Landing Page
+// Landing page
 app.get('/', (req, res) => {
     res.render('about'); // Render about.ejs
 });
 
-// Handle Name Submission
+// Handle username submission
 app.post('/submit-name', async (req, res) => {
-    const username = req.body.username;
-    console.log(username)
-    res.redirect('/play');
+    const { username } = req.body;
+    res.render('play', { username })
     return;
 });
 
-// Play Page
-app.get('/play', (req, res) => {
-    res.render('play'); // Render play.ejs
-});
-
-// Start Server
+// Start server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

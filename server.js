@@ -6,6 +6,7 @@ const PORT = 5000;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
+app.use(express.static('src'));
 
 // Routes
 // Landing page
@@ -16,7 +17,7 @@ app.get('/', (req, res) => {
 // Handle username submission
 app.post('/submit-name', async (req, res) => {
     const { username } = req.body;
-    res.render('play', { username })
+    res.render('play', { username });
     return;
 });
 

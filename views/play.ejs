@@ -8,8 +8,12 @@
 </head>
 <body>
   <h1>This is the game, <%= username %></h1>
-  <script src="/app.js" defer></script>
   <div id="blockGrid"></div>
-  
+  <button id="pauseBtn">Pause</button>
+  <div id="pauseMenu">
+    <p>Paused</p>
+    <button id="resumeBtn">Resume</button>
+  </div>
+  <script src="/app.js" defer></script>
 </body>
 </html>

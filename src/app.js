@@ -30,8 +30,46 @@ function createGrid(numRows, numCols, cellStates) {
     }
 }
 
+// 
+class Block {
+    constructor(numCols) {
+        this.numCols = numCols;
+        this.reset()
+    }
+    reset() {
+        this.topLeftPosition = {row: 0, col: Math.floor(this.numCols * Math.random())};
+        const shapeList = [
+            [[0,1],[1,1],[1,0],[0,2]], // ZigZagR
+            [[0,0],[0,1],[1,0],[1,1]]  // Square
+        ];
+        let shapeId = Math.floor(shapeList.length * Math.random());
+        this.shape = shapeList[shapeId];
+    }
+    shapePositions() {
+        return this.shape.map(x => [x[0]+this.topLeftPosition.row, (x[1]+this.topLeftPosition.col) % this.numCols]);
+    }
+    contactPositions(dir) {
+        if (dir === "down") {
+            return this.shape.map(x => [x[0]+this.topLeftPosition.row+1, (x[1]+this.topLeftPosition.col) % this.numCols]);
+        } else if (dir === "left") {
+            return this.shape.map(x => [x[0]+this.topLeftPosition.row, (x[1]+this.topLeftPosition.col+this.numCols-1) % this.numCols]);
+        } else if (dir === "right") {
+            return this.shape.map(x => [x[0]+this.topLeftPosition.row, (x[1]+this.topLeftPosition.col+1) % this.numCols]);
+        }
+    }
+    move(dir) {
+        if (dir === "down") {
+            this.topLeftPosition.row++;
+        } else if (dir === "left") {
+            this.topLeftPosition.col--;
+        } else if (dir === "right") {
+            this.topLeftPosition.col++;
+        }
+    }
+}
+
 function playGame() {
-    const numRows = 10;
+    const numRows = 15;
     const numCols = 8;
 
     // Initialisation
@@ -42,9 +80,14 @@ function playGame() {
             cellStates[row][col] = 0;
         }
     }
+    let fallingBlock = new Block(numCols);
+    // Render fallingBlock
+    let blockPositions = fallingBlock.shapePositions();
+    for (let cell = 0; cell < 4; cell++) {
+        let cellPosition = blockPositions[cell];
+        cellStates[cellPosition[0]][cellPosition[1]] = 2;
+    }
     let falling = 1;
-    let fallingPosition = {row: 0, col: Math.floor(numCols * Math.random())};
-    cellStates[fallingPosition.row][fallingPosition.col] = 2;
 
     // Initial display
     createGrid(numRows, numCols, cellStates);
@@ -56,31 +99,63 @@ function playGame() {
             // Square movement
             if (falling === 0) {
                 // Square falling
-                fallingPosition = {row: 0, col: Math.floor(numCols * Math.random())};
-                cellStates[fallingPosition.row][fallingPosition.col] = 2;
+                fallingBlock.reset();
+                blockPositions = fallingBlock.shapePositions();
+                for (let cell = 0; cell < 4; cell++) {
+                    let cellPosition = blockPositions[cell];
+                    cellStates[cellPosition[0]][cellPosition[1]] = 2;
+                }
                 falling = 1;
             } else {
                 if (blockMove != 'none') {
-                    if ((blockMove === 'left') && (cellStates[fallingPosition.row][(fallingPosition.col + numCols - 1) % numCols] === 0)) {
-                        cellStates[fallingPosition.row][fallingPosition.col] = 0;
-                        fallingPosition.col = (fallingPosition.col + numCols - 1) % numCols;
-                        cellStates[fallingPosition.row][fallingPosition.col] = 2;
-                        blockMove = 'none';
-                    } else if ((blockMove === 'right') && (cellStates[fallingPosition.row][(fallingPosition.col + numCols + 1) % numCols] === 0)) {
-                        cellStates[fallingPosition.row][fallingPosition.col] = 0;
-                        fallingPosition.col = (fallingPosition.col + numCols + 1) % numCols;
-                        cellStates[fallingPosition.row][fallingPosition.col] = 2;
+                    let moveValid = true;
+                    let contactPositions = fallingBlock.contactPositions(blockMove);
+                    for (let cell = 0; cell < 4; cell++) {
+                        let cellPosition = contactPositions[cell];
+                        moveValid = moveValid && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
+                    }
+                    if (moveValid) {
+                        blockPositions = fallingBlock.shapePositions();
+                        for (let cell = 0; cell < 4; cell++) {
+                            let cellPosition = blockPositions[cell];
+                            cellStates[cellPosition[0]][cellPosition[1]] = 0;
+                        }
+                        fallingBlock.move(blockMove);
+                        blockPositions = fallingBlock.shapePositions();
+                        for (let cell = 0; cell < 4; cell++) {
+                            let cellPosition = blockPositions[cell];
+                            cellStates[cellPosition[0]][cellPosition[1]] = 2;
+                        }
                         blockMove = 'none';
                     }
                 }
-                if ((fallingPosition.row + 1 === numRows) || (cellStates[fallingPosition.row + 1][fallingPosition.col] === 1)) {
+                // Transition from falling to stationary
+                let stillFalling = true;
+                contactPositions = fallingBlock.contactPositions("down");
+                for (let cell = 0; cell < 4; cell++) {
+                    let cellPosition = contactPositions[cell];
+                    stillFalling = stillFalling && (cellPosition[0] < numRows) && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
+                }
+                if (stillFalling) {
+                    blockPositions = fallingBlock.shapePositions();
+                    for (let cell = 0; cell < 4; cell++) {
+                        let cellPosition = blockPositions[cell];
+                        cellStates[cellPosition[0]][cellPosition[1]] = 0;
+                    }
+                    fallingBlock.move("down");
+                    blockPositions = fallingBlock.shapePositions();
+                    for (let cell = 0; cell < 4; cell++) {
+                        let cellPosition = blockPositions[cell];
+                        cellStates[cellPosition[0]][cellPosition[1]] = 2;
+                    }
+                } else {
                     // Transition from falling to stationary
                     falling = 0;
-                    cellStates[fallingPosition.row][fallingPosition.col] = 1;
-                } else {
-                    cellStates[fallingPosition.row][fallingPosition.col] = 0;
-                    fallingPosition.row++;
-                    cellStates[fallingPosition.row][fallingPosition.col] = 2;
+                    blockPositions = fallingBlock.shapePositions();
+                    for (let cell = 0; cell < 4; cell++) {
+                        let cellPosition = blockPositions[cell];
+                        cellStates[cellPosition[0]][cellPosition[1]] = 1;
+                    }
                 }
             }
         }

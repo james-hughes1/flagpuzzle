@@ -1,14 +1,8 @@
-# FutureLens2030 Project
+# FlagPuzzle Project
 
 ## About
 
 More info coming soon...
-
-## Current Questions
-
-1. What will the value of the S&P500 Index be on Dec 31st 2030?
-2. What will the total energy consumption of humans living on Earth be in the year 2030?
-3. Will humans land on Mars by 2030?
 
 ## Tools
 

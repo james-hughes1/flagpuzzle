@@ -10,7 +10,7 @@ button {
 #blockGrid {
     display: grid;
     grid-template-columns: repeat(8, 40px);
-    grid-template-rows: repeat(10, 40px);
+    grid-template-rows: repeat(15, 40px);
     grid-gap: 4px; /* Space between squares */
     margin-bottom: 8px;
 }

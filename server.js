@@ -15,10 +15,15 @@ app.get('/', (req, res) => {
 });
 
 // Handle username submission
-app.post('/submit-name', async (req, res) => {
+app.post('/play', async (req, res) => {
     const { username } = req.body;
     res.render('play', { username });
     return;
+});
+
+// Handle username submission
+app.get('/about', async (req, res) => {
+    res.render('about');
 });
 
 // Start server

@@ -1,10 +1,16 @@
 const blockGrid = document.getElementById('blockGrid');
 const pauseMenu = document.getElementById('pauseMenu');
+const endMenu = document.getElementById('endMenu');
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
+const scoreCounter = document.getElementById('scoreCounter');
 
 let blockMove = 'none';
 let pause = 0;
+
+function updateScoreCounter(score) {
+    scoreCounter.textContent = score;
+}
 
 // Function to create a grid
 function createGrid(numRows, numCols, cellStates) {
@@ -82,6 +88,12 @@ function playGame() {
         }
     }
     let fallingBlock = new Block(numCols);
+    let score = 0;
+
+    // Hide end menu
+    let end = false;
+    endMenu.style.display = 'none'
+
     // Render fallingBlock
     let blockPositions = fallingBlock.shapePositions();
     for (let cell = 0; cell < 4; cell++) {
@@ -163,6 +175,7 @@ function playGame() {
                             fullRow = fullRow && (cellStates[row][col] === 1);
                         }
                         if (fullRow) {
+                            // Shift cell values down
                             for (let aboveRow = row; aboveRow >= 0; aboveRow--) {
                                 for (let col = 0; col < numCols; col++) {
                                     if (aboveRow > 0) {
@@ -172,6 +185,9 @@ function playGame() {
                                     }
                                 }
                             }
+                            // Add to score
+                            score++;
+                            updateScoreCounter(score);
                         }
                     }
                 }
@@ -183,8 +199,14 @@ function playGame() {
             for (let col = 0; col < numCols; col++) {
                 if (cellStates[row][col] === 1) {
                     clearInterval(intervalId);
+                    end = true;
                 }
             }
+        }
+
+        if (end) {
+            // Display end Menu and score
+            endMenu.style.display = 'block';
         }
 
         createGrid(numRows, numCols, cellStates);
@@ -215,4 +237,6 @@ resumeBtn.addEventListener('click', () => {
 });
 
 // Run game
+
 playGame();
+

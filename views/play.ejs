@@ -4,15 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/styles.css">
-  <title>Enter Name</title>
+  <title>Flag Puzzle Game</title>
 </head>
 <body>
-  <h1>This is the game, <%= username %></h1>
+  <h1><%= username %>, you have: <span id="scoreCounter">0</span> points.</h1>
   <div id="blockGrid"></div>
   <button id="pauseBtn">Pause</button>
   <div id="pauseMenu">
     <p>Paused</p>
     <button id="resumeBtn">Resume</button>
+  </div>
+  <div id="endMenu">
+    <p><%= username %>, you got an incredible <span id="scoreCounter">0</span> points.</p>
+    <form action="/about" method="GET">
+      <button type="submit">Play Again</button>
+    </form>
   </div>
   <script src="/app.js" defer></script>
 </body>

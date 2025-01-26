@@ -40,7 +40,8 @@ class Block {
         this.topLeftPosition = {row: 0, col: Math.floor(this.numCols * Math.random())};
         const shapeList = [
             [[0,1],[1,1],[1,0],[0,2]], // ZigZagR
-            [[0,0],[0,1],[1,0],[1,1]]  // Square
+            [[0,0],[0,1],[1,0],[1,1]], // Square
+            [[2,0],[0,1],[1,1],[2,1]]  // J
         ];
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
@@ -61,9 +62,9 @@ class Block {
         if (dir === "down") {
             this.topLeftPosition.row++;
         } else if (dir === "left") {
-            this.topLeftPosition.col--;
+            this.topLeftPosition.col = (this.topLeftPosition.col + this.numCols - 1) % this.numCols;
         } else if (dir === "right") {
-            this.topLeftPosition.col++;
+            this.topLeftPosition.col = (this.topLeftPosition.col + this.numCols + 1) % this.numCols;
         }
     }
 }
@@ -149,12 +150,29 @@ function playGame() {
                         cellStates[cellPosition[0]][cellPosition[1]] = 2;
                     }
                 } else {
-                    // Transition from falling to stationary
                     falling = 0;
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
                         cellStates[cellPosition[0]][cellPosition[1]] = 1;
+                    }
+                    // Check for full rows to eliminate
+                    for (let row = 4; row < numRows; row++) {
+                        let fullRow = true;
+                        for (let col = 0; col < numCols; col++) {
+                            fullRow = fullRow && (cellStates[row][col] === 1);
+                        }
+                        if (fullRow) {
+                            for (let aboveRow = row; aboveRow >= 0; aboveRow--) {
+                                for (let col = 0; col < numCols; col++) {
+                                    if (aboveRow > 0) {
+                                        cellStates[aboveRow][col] = cellStates[aboveRow - 1][col];
+                                    } else {
+                                        cellStates[aboveRow][col] = 0;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

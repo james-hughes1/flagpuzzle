@@ -3,6 +3,7 @@ const pauseMenu = document.getElementById('pauseMenu');
 const endMenu = document.getElementById('endMenu');
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
+const dropBtn = document.getElementById('dropBtn');
 const scoreElements = document.querySelectorAll(".score");
 
 let blockMove = 'none';
@@ -50,7 +51,10 @@ class Block {
         const shapeList = [
             [[0,1],[1,1],[1,0],[0,2]], // ZigZagR
             [[0,0],[0,1],[1,0],[1,1]], // Square
-            [[2,0],[0,1],[1,1],[2,1]]  // J
+            [[2,0],[0,1],[1,1],[2,1]],  // J
+            [[0,0],[0,1],[1,1],[0,2]], // T
+            [[0,0],[1,0],[2,0],[3,0]], // I
+            [[0,0],[1,0],[1,1],[2,1]]  // ZigZagD
         ];
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
@@ -81,6 +85,7 @@ class Block {
 function playGame() {
     const numRows = 15;
     const numCols = 8;
+    const timeInterval = 500;
 
     // Initialisation
     let cellStates = [];
@@ -108,6 +113,30 @@ function playGame() {
     // Initial display
     createGrid(numRows, numCols, cellStates);
 
+    // Block move function
+
+    function moveBlockCheck() {
+        let moveValid = true;
+        let contactPositions = fallingBlock.contactPositions(blockMove);
+        for (let cell = 0; cell < 4; cell++) {
+            let cellPosition = contactPositions[cell];
+            moveValid = moveValid && (cellPosition[0] < numRows) && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
+        }
+        if (moveValid) {
+            blockPositions = fallingBlock.shapePositions();
+            for (let cell = 0; cell < 4; cell++) {
+                let cellPosition = blockPositions[cell];
+                cellStates[cellPosition[0]][cellPosition[1]] = 0;
+            }
+            fallingBlock.move(blockMove);
+            blockPositions = fallingBlock.shapePositions();
+            for (let cell = 0; cell < 4; cell++) {
+                let cellPosition = blockPositions[cell];
+                cellStates[cellPosition[0]][cellPosition[1]] = 2;
+            }
+        }
+    }
+
     // Game loop
     intervalId = setInterval(() => {
         // Check unpaused
@@ -123,25 +152,10 @@ function playGame() {
                 }
                 falling = 1;
             } else {
+                // Moving block left, right, or down
                 if (blockMove != 'none') {
-                    let moveValid = true;
-                    let contactPositions = fallingBlock.contactPositions(blockMove);
-                    for (let cell = 0; cell < 4; cell++) {
-                        let cellPosition = contactPositions[cell];
-                        moveValid = moveValid && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
-                    }
-                    if (moveValid) {
-                        blockPositions = fallingBlock.shapePositions();
-                        for (let cell = 0; cell < 4; cell++) {
-                            let cellPosition = blockPositions[cell];
-                            cellStates[cellPosition[0]][cellPosition[1]] = 0;
-                        }
-                        fallingBlock.move(blockMove);
-                        blockPositions = fallingBlock.shapePositions();
-                        for (let cell = 0; cell < 4; cell++) {
-                            let cellPosition = blockPositions[cell];
-                            cellStates[cellPosition[0]][cellPosition[1]] = 2;
-                        }
+                    if (blockMove != 'down') {
+                        moveBlockCheck();
                         blockMove = 'none';
                     }
                 }
@@ -213,7 +227,7 @@ function playGame() {
         }
 
         createGrid(numRows, numCols, cellStates);
-    }, 200);
+    }, timeInterval);
 }
 
 // Add listeners for arrow key controls
@@ -225,7 +239,15 @@ document.addEventListener('keydown', function(event) {
         case 'ArrowRight':
             blockMove = 'right';
             break;
+        case 'Enter':
+            blockMove = 'down';
+            break;
     }
+});
+
+// Drop button
+dropBtn.addEventListener('click', () => {
+    blockMove = 'down';
 });
 
 // Pause & Resume Menu

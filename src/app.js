@@ -3,13 +3,16 @@ const pauseMenu = document.getElementById('pauseMenu');
 const endMenu = document.getElementById('endMenu');
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
-const scoreCounter = document.getElementById('scoreCounter');
+const scoreElements = document.querySelectorAll(".score");
 
 let blockMove = 'none';
 let pause = 0;
 
 function updateScoreCounter(score) {
-    scoreCounter.textContent = score;
+    // Update the text content of each element
+    scoreElements.forEach(span => {
+        span.textContent = score;
+    });
 }
 
 // Function to create a grid

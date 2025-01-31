@@ -135,6 +135,7 @@ function playGame() {
                 cellStates[cellPosition[0]][cellPosition[1]] = 2;
             }
         }
+        return moveValid;
     }
 
     // Game loop
@@ -156,8 +157,13 @@ function playGame() {
                 if (blockMove != 'none') {
                     if (blockMove != 'down') {
                         moveBlockCheck();
-                        blockMove = 'none';
+                    } else {
+                        moveValid = moveBlockCheck();
+                        while (moveValid) {
+                            moveValid = moveBlockCheck();
+                        }
                     }
+                    blockMove = 'none';
                 }
                 // Transition from falling to stationary
                 let stillFalling = true;

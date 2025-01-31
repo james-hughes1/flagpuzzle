@@ -5,7 +5,10 @@ const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
 const dropBtn = document.getElementById('dropBtn');
 const scoreElements = document.querySelectorAll(".score");
+const answerInput = document.getElementById('answerInput');
 
+let blockMoveUnlocked = false;
+let answer = "test";
 let blockMove = 'none';
 let pause = 0;
 
@@ -86,6 +89,7 @@ function playGame() {
     const numRows = 15;
     const numCols = 8;
     const timeInterval = 500;
+    blockMoveUnlocked = false;
 
     // Initialisation
     let cellStates = [];
@@ -114,7 +118,6 @@ function playGame() {
     createGrid(numRows, numCols, cellStates);
 
     // Block move function
-
     function moveBlockCheck() {
         let moveValid = true;
         let contactPositions = fallingBlock.contactPositions(blockMove);
@@ -155,15 +158,17 @@ function playGame() {
             } else {
                 // Moving block left, right, or down
                 if (blockMove != 'none') {
-                    if (blockMove != 'down') {
-                        moveBlockCheck();
-                    } else {
-                        moveValid = moveBlockCheck();
-                        while (moveValid) {
+                    if (blockMoveUnlocked) {
+                        if (blockMove != 'down') {
+                            moveBlockCheck();
+                        } else {
                             moveValid = moveBlockCheck();
+                            while (moveValid) {
+                                moveValid = moveBlockCheck();
+                            }
                         }
+                        blockMove = 'none';
                     }
-                    blockMove = 'none';
                 }
                 // Transition from falling to stationary
                 let stillFalling = true;
@@ -186,6 +191,7 @@ function playGame() {
                     }
                 } else {
                     falling = 0;
+                    blockMoveUnlocked = false;
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
@@ -245,15 +251,23 @@ document.addEventListener('keydown', function(event) {
         case 'ArrowRight':
             blockMove = 'right';
             break;
-        case 'Enter':
+        case 'ArrowDown':
             blockMove = 'down';
             break;
+        case 'Enter':
+            if (answerInput.value === answer) {
+                blockMoveUnlocked = true;
+            }
+            answerInput.value = '';
     }
 });
 
-// Drop button
+// Drop button - same as clicking Enter
 dropBtn.addEventListener('click', () => {
-    blockMove = 'down';
+    if (answerInput.value === answer) {
+        blockMoveUnlocked = true;
+    }
+    answerInput.value = '';
 });
 
 // Pause & Resume Menu

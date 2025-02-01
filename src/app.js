@@ -8,9 +8,11 @@ const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
 const flagImg = document.getElementById('flagImg');
 
+const ROWBUFFER = 5;
+
 // Read in number of rows and columns from html code and set CSS style
-const numRows = parseInt(blockGrid.dataset.rows, 10);
-blockGrid.style.setProperty("--rows", numRows);
+const numRows = parseInt(blockGrid.dataset.rows, 10) + ROWBUFFER;
+blockGrid.style.setProperty("--rows", numRows - ROWBUFFER);
 const numCols = parseInt(blockGrid.dataset.columns, 10);
 blockGrid.style.setProperty("--columns", numCols);
 
@@ -48,7 +50,7 @@ function updateScoreCounter(score) {
 function createGrid(numRows, numCols, cellStates) {
     blockGrid.innerHTML = ''; // Clear existing grid
 
-    for (let row = 0; row < numRows; row++) {
+    for (let row = ROWBUFFER; row < numRows; row++) {
         for (let col = 0; col < numCols; col++) {
             const square = document.createElement('div');
             square.classList.add('square');
@@ -60,8 +62,6 @@ function createGrid(numRows, numCols, cellStates) {
             } else if (cellStates[row][col] === 2) {
                 // Falling square
                 square.classList.add('blue')
-            } else if (row < 4) {
-                square.classList.add('grey');
             }
             blockGrid.appendChild(square);
         }
@@ -216,7 +216,7 @@ function playGame() {
                         cellStates[cellPosition[0]][cellPosition[1]] = 1;
                     }
                     // Check for full rows to eliminate
-                    for (let row = 4; row < numRows; row++) {
+                    for (let row = ROWBUFFER; row < numRows; row++) {
                         let fullRow = true;
                         for (let col = 0; col < numCols; col++) {
                             fullRow = fullRow && (cellStates[row][col] === 1);
@@ -242,7 +242,7 @@ function playGame() {
         }
 
         // Game over
-        for (let row = 0; row < 4; row++) {
+        for (let row = 0; row < ROWBUFFER; row++) {
             for (let col = 0; col < numCols; col++) {
                 if (cellStates[row][col] === 1) {
                     clearInterval(intervalId);

@@ -1,18 +1,53 @@
+/* Body styling */
 body {
+    font-family: Arial, sans-serif;
+    color: white;
+    height: 90vh;
     background-color: navy;
+    justify-content: center;
+}
+
+h1 {
+    text-align: center;
 }
 
 button {
     justify-content: center;
 }
 
-/* Style for the grid */
+/* Main game container */
+#gameContainer {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 20px;
+    width: 80%;
+    height: 80vh;
+}
+
+/* Left section: blockGrid */
 #blockGrid {
     display: grid;
     grid-template-columns: repeat(var(--columns, 8), 40px);
     grid-template-rows: repeat(var(--rows, 15), 40px);
     grid-gap: 4px; /* Space between squares */
     margin-bottom: 8px;
+    justify-self: end; /* Push to the right */
+}
+
+/* Right section: Controls */
+#controls {
+    padding: 20px; /* Space between the different controls */
+}
+
+/* Image container */
+.image-container {
+    text-align: center;
+}
+
+.image-container img {
+    width: 100%; /* Make the image take the full width of its container */
+    max-width: 200px; /* Optional: limit max width */
+    height: auto;
 }
 
 /* Pause Menu Pop Up*/
@@ -22,6 +57,7 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    color: black;
     background-color: white;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -36,6 +72,7 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    color: black;
     background-color: white;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

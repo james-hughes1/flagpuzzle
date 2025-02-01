@@ -1,3 +1,4 @@
+<!-- Boilerplate Header Section -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,13 +7,26 @@
   <link rel="stylesheet" href="/styles.css">
   <title>Flag Puzzle Game</title>
 </head>
+
 <body>
   <h1><%= username %>, you have: <span class="score">0</span> points.</h1>
-  <div id="blockGrid" data-rows="10" data-columns="20"></div>
-  <label for="answerInput">Answer: </label>
-  <input type="text" id="answerInput" placeholder="Type your answer here">
-  <button id="dropBtn">Drop</button>
-  <button id="pauseBtn">Pause</button>
+  <!-- Game Area -->
+  <div id="gameContainer">
+    <!-- blockGrid takes 70% of the space -->
+    <div id="blockGrid" data-rows="15" data-columns="12"></div>
+    <!-- On the right there are the other controls -->
+    <div id="controls">
+      <div class="image-container">
+        <img src="/assets/flags/us.svg" alt="Flag">
+      </div>
+      <label for="answerInput">Answer: </label>
+      <input type="text" id="answerInput" placeholder="Type your answer here">
+      <button id="dropBtn">Drop</button>
+      <button id="pauseBtn">Pause</button>
+    </div>
+  </div>
+
+  <!-- Pop Up Menus -->
   <div id="pauseMenu">
     <p>Paused</p>
     <button id="resumeBtn">Resume</button>

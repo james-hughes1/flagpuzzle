@@ -16,3 +16,7 @@ More info coming soon...
  - **MongoDB.** Database.
  - **EJS.** Views.
 
+ ## Acknowledgements
+
+Flag SVG icons sourced from [flagpedia.net](https://flagpedia.net)
+

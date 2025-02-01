@@ -6,6 +6,7 @@ const resumeBtn = document.getElementById('resumeBtn');
 const dropBtn = document.getElementById('dropBtn');
 const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
+const flagImg = document.getElementById('flagImg');
 
 // Read in number of rows and columns from html code and set CSS style
 const numRows = parseInt(blockGrid.dataset.rows, 10);
@@ -14,9 +15,27 @@ const numCols = parseInt(blockGrid.dataset.columns, 10);
 blockGrid.style.setProperty("--columns", numCols);
 
 let blockMoveUnlocked = false;
-let answer = "test";
 let blockMove = 'none';
 let pause = 0;
+
+const NUMCOUNTRIES = 20;
+
+// Async function to country code mapping
+async function loadCountries() {
+    const response = await fetch('assets/iso-alpha-2-easy.json');
+    const data = await response.json();
+    return data;
+}
+
+// Function to get random country
+async function updateCountry() {
+    const countriesData = await loadCountries();
+    const countries = Object.entries(countriesData);
+    console.log(countries[countryIndex][1]);
+    countryCode = countries[countryIndex][1]["alpha-2"].toLowerCase();
+    answer = countries[countryIndex][1]["name"];
+    flagImg.src = "/assets/flags/"+countryCode+".svg"
+}
 
 function updateScoreCounter(score) {
     // Update the text content of each element
@@ -49,7 +68,6 @@ function createGrid(numRows, numCols, cellStates) {
     }
 }
 
-// 
 class Block {
     constructor(numCols) {
         this.numCols = numCols;
@@ -104,9 +122,8 @@ class Block {
     }
 }
 
+// Game loop function
 function playGame() {
-    // Game loop function
-
     // Block move function
     function moveBlockCheck() {
         let moveValid = true;
@@ -189,6 +206,10 @@ function playGame() {
                     timeInterval *= 0.99;
                     clearInterval(intervalId);
                     playGame();
+                    // New flag
+                    countryIndex = Math.floor(Math.random() * NUMCOUNTRIES);
+                    updateCountry();
+                    // Change to fixed cells
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
@@ -252,7 +273,7 @@ document.addEventListener('keydown', function(event) {
             blockMove = 'down';
             break;
         case 'Enter':
-            if (answerInput.value === answer) {
+            if (answerInput.value.toLowerCase() === answer.toLowerCase()) {
                 blockMoveUnlocked = true;
             }
             answerInput.value = '';
@@ -261,7 +282,7 @@ document.addEventListener('keydown', function(event) {
 
 // Drop button - same as clicking Enter
 dropBtn.addEventListener('click', () => {
-    if (answerInput.value === answer) {
+    if (answerInput.value.toLowerCase() === answer.toLowerCase()) {
         blockMoveUnlocked = true;
     }
     answerInput.value = '';
@@ -302,6 +323,12 @@ for (let cell = 0; cell < 4; cell++) {
     cellStates[cellPosition[0]][cellPosition[1]] = 2;
 }
 let falling = true;
+
+// Initial country
+let answer = "";
+let countryIndex = 0;
+let countryCode = "";
+updateCountry();
 
 // Initial display
 createGrid(numRows, numCols, cellStates);

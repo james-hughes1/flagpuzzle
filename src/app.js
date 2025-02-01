@@ -7,6 +7,12 @@ const dropBtn = document.getElementById('dropBtn');
 const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
 
+// Read in number of rows and columns from html code and set CSS style
+const numRows = parseInt(blockGrid.dataset.rows, 10);
+blockGrid.style.setProperty("--rows", numRows);
+const numCols = parseInt(blockGrid.dataset.columns, 10);
+blockGrid.style.setProperty("--columns", numCols);
+
 let blockMoveUnlocked = false;
 let answer = "test";
 let blockMove = 'none';
@@ -52,12 +58,25 @@ class Block {
     reset() {
         this.topLeftPosition = {row: 0, col: Math.floor(this.numCols * Math.random())};
         const shapeList = [
-            [[0,1],[1,1],[1,0],[0,2]], // ZigZagR
-            [[0,0],[0,1],[1,0],[1,1]], // Square
-            [[2,0],[0,1],[1,1],[2,1]],  // J
-            [[0,0],[0,1],[1,1],[0,2]], // T
-            [[0,0],[1,0],[2,0],[3,0]], // I
-            [[0,0],[1,0],[1,1],[2,1]]  // ZigZagD
+            [[0,0],[0,1],[1,1],[1,2]], // Z000
+            [[2,0],[1,0],[1,1],[0,1]], // Z090
+            [[0,1],[1,1],[1,0],[0,2]], // ZF000
+            [[0,0],[1,0],[1,1],[2,1]], // ZF090
+            [[0,0],[0,1],[1,0],[1,1]], // S000
+            [[2,0],[0,1],[1,1],[2,1]], // J000
+            [[0,0],[0,1],[0,2],[1,2]], // J090
+            [[0,0],[1,0],[2,0],[0,1]], // J180
+            [[0,0],[1,0],[1,1],[2,1]], // J270
+            [[0,0],[1,0],[2,0],[2,1]], // L000
+            [[1,0],[1,1],[2,1],[2,0]], // L090
+            [[0,0],[0,1],[1,1],[2,1]], // L180
+            [[0,0],[1,0],[0,1],[0,2]], // L270
+            [[0,0],[0,1],[1,1],[0,2]], // T000
+            [[0,0],[1,0],[2,0],[1,1]], // T090
+            [[1,0],[1,1],[1,2],[0,1]], // T180
+            [[1,0],[0,1],[1,1],[2,1]], // T270
+            [[0,0],[1,0],[2,0],[3,0]], // I000
+            [[0,0],[0,1],[0,2],[0,3]] // I090
         ];
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
@@ -86,8 +105,6 @@ class Block {
 }
 
 function playGame() {
-    const numRows = 15;
-    const numCols = 8;
     const timeInterval = 500;
     blockMoveUnlocked = false;
 

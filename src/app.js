@@ -105,34 +105,7 @@ class Block {
 }
 
 function playGame() {
-    const timeInterval = 500;
-    blockMoveUnlocked = false;
-
-    // Initialisation
-    let cellStates = [];
-    for (let row = 0; row < numRows; row++) {
-        cellStates[row] = [];
-        for (let col = 0; col < numCols; col++) {
-            cellStates[row][col] = 0;
-        }
-    }
-    let fallingBlock = new Block(numCols);
-    let score = 0;
-
-    // Hide end menu
-    let end = false;
-    endMenu.style.display = 'none'
-
-    // Render fallingBlock
-    let blockPositions = fallingBlock.shapePositions();
-    for (let cell = 0; cell < 4; cell++) {
-        let cellPosition = blockPositions[cell];
-        cellStates[cellPosition[0]][cellPosition[1]] = 2;
-    }
-    let falling = 1;
-
-    // Initial display
-    createGrid(numRows, numCols, cellStates);
+    // Game loop function
 
     // Block move function
     function moveBlockCheck() {
@@ -163,7 +136,7 @@ function playGame() {
         // Check unpaused
         if (pause == 0) {
             // Square movement
-            if (falling === 0) {
+            if (!falling) {
                 // Square falling
                 fallingBlock.reset();
                 blockPositions = fallingBlock.shapePositions();
@@ -171,7 +144,7 @@ function playGame() {
                     let cellPosition = blockPositions[cell];
                     cellStates[cellPosition[0]][cellPosition[1]] = 2;
                 }
-                falling = 1;
+                falling = true;
             } else {
                 // Moving block left, right, or down
                 if (blockMove != 'none') {
@@ -188,6 +161,7 @@ function playGame() {
                     }
                 }
                 // Transition from falling to stationary
+                // Check if hit floor
                 let stillFalling = true;
                 contactPositions = fallingBlock.contactPositions("down");
                 for (let cell = 0; cell < 4; cell++) {
@@ -195,6 +169,7 @@ function playGame() {
                     stillFalling = stillFalling && (cellPosition[0] < numRows) && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
                 }
                 if (stillFalling) {
+                    // Handle falling
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
@@ -207,8 +182,13 @@ function playGame() {
                         cellStates[cellPosition[0]][cellPosition[1]] = 2;
                     }
                 } else {
-                    falling = 0;
+                    // Handle hitting the floor
+                    falling = false;
                     blockMoveUnlocked = false;
+                    // Increase game speed
+                    timeInterval *= 0.99;
+                    clearInterval(intervalId);
+                    playGame();
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
@@ -231,7 +211,7 @@ function playGame() {
                                     }
                                 }
                             }
-                            // Add to score
+                            // Add to score if row eliminated
                             score++;
                             updateScoreCounter(score);
                         }
@@ -298,7 +278,32 @@ resumeBtn.addEventListener('click', () => {
     pause = 0;
 });
 
-// Run game
+// Initialise game parameters
+let timeInterval = 500;
+blockMoveUnlocked = false;
+let cellStates = [];
+for (let row = 0; row < numRows; row++) {
+    cellStates[row] = [];
+    for (let col = 0; col < numCols; col++) {
+        cellStates[row][col] = 0;
+    }
+}
+let score = 0;
+
+// Hide end menu
+let end = false;
+endMenu.style.display = 'none'
+
+// Create and render fallingBlock
+let fallingBlock = new Block(numCols);
+let blockPositions = fallingBlock.shapePositions();
+for (let cell = 0; cell < 4; cell++) {
+    let cellPosition = blockPositions[cell];
+    cellStates[cellPosition[0]][cellPosition[1]] = 2;
+}
+let falling = true;
+
+// Initial display
+createGrid(numRows, numCols, cellStates);
 
 playGame();
-

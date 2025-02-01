@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     color: white;
     height: 90vh;
-    background-color: navy;
+    background-color: cyan;
     justify-content: center;
 }
 
@@ -42,13 +42,23 @@ button {
 /* Image container */
 .image-container {
     text-align: center;
+    position: relative;  /* Allows absolute positioning inside */
+    display: inline-block;
 }
 
 .image-container img {
     width: 100%; /* Make the image take the full width of its container */
-    max-width: 200px; /* Optional: limit max width */
     height: auto;
 }
+
+#tick {
+    display: none;
+    position: absolute;  /* Places it on top of the flag */
+    top: 30%;
+    left: 30%;
+    width: 40%;
+    height: auto;
+  }
 
 /* Pause Menu Pop Up*/
 #pauseMenu {
@@ -67,6 +77,21 @@ button {
 
 /* End Menu Pop Up*/
 #endMenu {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    border-radius: 8px;
+}
+
+/* Hint Menu Pop Up*/
+#hintMenu {
     display: none;
     position: fixed;
     top: 50%;

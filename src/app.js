@@ -1,14 +1,17 @@
 const blockGrid = document.getElementById('blockGrid');
 const pauseMenu = document.getElementById('pauseMenu');
 const endMenu = document.getElementById('endMenu');
+const hintMenu = document.getElementById('hintMenu')
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
 const dropBtn = document.getElementById('dropBtn');
 const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
 const flagImg = document.getElementById('flagImg');
-
-const ROWBUFFER = 5;
+const hintImg = document.getElementById('hintImg');
+const hintCountry = document.getElementById('hintCountry')
+const tick = document.getElementById('tick')
+const ROWBUFFER = 10;
 
 // Read in number of rows and columns from html code and set CSS style
 const numRows = parseInt(blockGrid.dataset.rows, 10) + ROWBUFFER;
@@ -18,7 +21,7 @@ blockGrid.style.setProperty("--columns", numCols);
 
 let blockMoveUnlocked = false;
 let blockMove = 'none';
-let pause = 0;
+let pause = false;
 
 const NUMCOUNTRIES = 20;
 
@@ -37,6 +40,8 @@ async function updateCountry() {
     countryCode = countries[countryIndex][1]["alpha-2"].toLowerCase();
     answer = countries[countryIndex][1]["name"];
     flagImg.src = "/assets/flags/"+countryCode+".svg"
+    hintImg.src = "/assets/flags/"+countryCode+".svg"
+    hintCountry.textContent = answer
 }
 
 function updateScoreCounter(score) {
@@ -151,7 +156,7 @@ function playGame() {
     // Game loop
     intervalId = setInterval(() => {
         // Check unpaused
-        if (pause == 0) {
+        if (!pause) {
             // Square movement
             if (!falling) {
                 // Square falling
@@ -209,6 +214,7 @@ function playGame() {
                     // New flag
                     countryIndex = Math.floor(Math.random() * NUMCOUNTRIES);
                     updateCountry();
+                    tick.style.display = 'none';
                     // Change to fixed cells
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
@@ -232,9 +238,6 @@ function playGame() {
                                     }
                                 }
                             }
-                            // Add to score if row eliminated
-                            score++;
-                            updateScoreCounter(score);
                         }
                     }
                 }
@@ -273,30 +276,51 @@ document.addEventListener('keydown', function(event) {
             blockMove = 'down';
             break;
         case 'Enter':
-            if (answerInput.value.toLowerCase() === answer.toLowerCase()) {
-                blockMoveUnlocked = true;
+            if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+                blockMove = 'down';
+                pause = true;
+                hintMenu.style.display = 'block';
+                setTimeout(() => {
+                    pause = false;
+                    hintMenu.style.display = 'none';
+                }, 3000)
+            } else {
+                tick.style.display = 'block';
+                score++;
+                updateScoreCounter(score);
             }
+            blockMoveUnlocked = true;
             answerInput.value = '';
     }
 });
 
 // Drop button - same as clicking Enter
 dropBtn.addEventListener('click', () => {
-    if (answerInput.value.toLowerCase() === answer.toLowerCase()) {
-        blockMoveUnlocked = true;
+    if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+        pause = true;
+        hintMenu.style.display = 'block';
+        setTimeout(() => {
+            pause = false;
+            hintMenu.style.display = 'none';
+        }, 3000)
+    } else {
+        tick.style.display = 'block';
+        score++;
+        updateScoreCounter(score);
     }
+    blockMoveUnlocked = true;
     answerInput.value = '';
 });
 
 // Pause & Resume Menu
 pauseBtn.addEventListener('click', () => {
     pauseMenu.style.display = 'block'; // Show the pause menu
-    pause = 1;
+    pause = true;
 });
 
 resumeBtn.addEventListener('click', () => {
     pauseMenu.style.display = 'none'; // Hide the pause menu
-    pause = 0;
+    pause = false;
 });
 
 // Initialise game parameters

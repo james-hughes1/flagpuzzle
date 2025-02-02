@@ -32,16 +32,56 @@ async function loadCountries() {
     return data;
 }
 
-// Function to get random country
+// Function to get country
 async function updateCountry() {
     const countriesData = await loadCountries();
     const countries = Object.entries(countriesData);
-    console.log(countries[countryIndex][1]);
     countryCode = countries[countryIndex][1]["alpha-2"].toLowerCase();
     answer = countries[countryIndex][1]["name"];
     flagImg.src = "/assets/flags/"+countryCode+".svg"
     hintImg.src = "/assets/flags/"+countryCode+".svg"
     hintCountry.textContent = answer
+}
+
+// Smart question selector
+let countryRecord = [];
+for (let qIndex = 0; qIndex < NUMCOUNTRIES; qIndex++) {
+    countryRecord[qIndex] = {index: qIndex, correct: 0, incorrect: 0};
+}
+
+function smartIndex(record) {
+    let seenIndices = [];
+    let unseenIndices = [];
+    for (let qIndex = 0; qIndex < NUMCOUNTRIES; qIndex++) {
+        if (record[qIndex].correct + record[qIndex].incorrect > 0) {
+            for (let i = 0; i < 1 + record[qIndex].incorrect; i++) {
+                seenIndices.push(qIndex);
+            }
+        } else {
+            unseenIndices.push(qIndex);
+        }
+    }
+    let seenAgain = (Math.random() > 0.2);
+    let qIndex = 0;
+    if (seenAgain) {
+        let i = Math.floor(Math.random() * seenIndices.length);
+        qIndex = seenIndices[i];
+    } else {
+        let i = Math.floor(Math.random() * unseenIndices.length);
+        qIndex = unseenIndices[i];
+    }
+    console.log(qIndex);
+    return qIndex;
+}
+
+function updateRecord(record, index, result) {
+    if (result === "correct") {
+        record[index].correct++;
+    } else {
+        record[index].incorrect++;
+    }
+    console.log(record);
+    return record;
 }
 
 function updateScoreCounter(score) {
@@ -211,8 +251,15 @@ function playGame() {
                     timeInterval *= 0.99;
                     clearInterval(intervalId);
                     playGame();
+                    // Update record
+                    if (answerCorrect) {
+                        countryRecord = updateRecord(countryRecord, countryIndex, "correct");
+                        answerCorrect = false;
+                    } else {
+                        countryRecord = updateRecord(countryRecord, countryIndex, "incorrect");
+                    }
                     // New flag
-                    countryIndex = Math.floor(Math.random() * NUMCOUNTRIES);
+                    countryIndex = smartIndex(countryRecord);
                     updateCountry();
                     tick.style.display = 'none';
                     // Change to fixed cells
@@ -267,10 +314,14 @@ function playGame() {
 document.addEventListener('keydown', function(event) {
     switch (event.key) {
         case 'ArrowLeft':
-            blockMove = 'left';
+            if (answerCorrect) {
+                blockMove = 'left';
+            }
             break;
         case 'ArrowRight':
-            blockMove = 'right';
+            if (answerCorrect) {
+                blockMove = 'right';
+            }
             break;
         case 'ArrowDown':
             blockMove = 'down';
@@ -288,6 +339,7 @@ document.addEventListener('keydown', function(event) {
                 tick.style.display = 'block';
                 score++;
                 updateScoreCounter(score);
+                answerCorrect = true;
             }
             blockMoveUnlocked = true;
             answerInput.value = '';
@@ -307,6 +359,7 @@ dropBtn.addEventListener('click', () => {
         tick.style.display = 'block';
         score++;
         updateScoreCounter(score);
+        answerCorrect = true;
     }
     blockMoveUnlocked = true;
     answerInput.value = '';
@@ -347,6 +400,7 @@ for (let cell = 0; cell < 4; cell++) {
     cellStates[cellPosition[0]][cellPosition[1]] = 2;
 }
 let falling = true;
+let answerCorrect = false;
 
 // Initial country
 let answer = "";

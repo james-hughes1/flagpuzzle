@@ -5,18 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite"
+    "dev": "vite",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/james-hughes1/futurelens2030.git"
+    "url": "git+https://github.com/james-hughes1/flagpuzzle.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/james-hughes1/futurelens2030/issues"
+    "url": "https://github.com/james-hughes1/flagpuzzle/issues"
   },
-  "homepage": "https://github.com/james-hughes1/futurelens2030#readme",
+  "homepage": "https://github.com/james-hughes1/flagpuzzle#readme",
   "devDependencies": {
     "vite": "^6.0.6"
   },

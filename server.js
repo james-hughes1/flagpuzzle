@@ -5,6 +5,8 @@ const app = express();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
+
+// Serve static files from the "src" folder
 app.use(express.static('src'));
 
 // Routes

@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles.css">
   <title>About Page</title>
 </head>
 <body>
   <h1>Welcome to Flag Puzzle</h1>
   <h1>Enter Username</h1>
   <form action="/play" method="POST">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <button type="submit">GO</button>
+    <div id=userEnter>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <button type="submit" id="play">PLAY</button>
+    </div>
   </form>
 </body>
 </html>

@@ -13,6 +13,14 @@ h1 {
     text-align: center;
     height: 5%;
     font-size: medium;
+    color: black;
+}
+
+#userEnter {
+    text-align: center;
+    font-size: medium;
+    color: black;
+    align-items: center;
 }
 
 button {
@@ -172,7 +180,7 @@ button {
         top: 30%;
         left: 30%;
         width: 40%;
-        height: 20px;
+        height: auto;
     }
 }
 
@@ -213,7 +221,7 @@ button {
     display: none;
 }
 
-/* Show the keyboard only on mobile */
+/* Show the keyboard only on mobile and make text box readonly*/
 @media (max-width: 768px) {
     #keyboard {
         display: grid;
@@ -222,5 +230,10 @@ button {
         grid-gap: 3px;
         justify-content: center;
         margin-top: 3px;
+    }
+
+    #yourInputID {
+        pointer-events: none; /* Prevents manual typing */
+        touch-action: none; /* Disables mobile keyboard */
     }
 }

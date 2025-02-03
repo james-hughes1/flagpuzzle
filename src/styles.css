@@ -149,7 +149,7 @@ button {
     #gameContainer {
         display: grid;
         grid-template-columns: 1fr; /* Stack everything vertically */
-        grid-template-rows: 80% 20%; /* Adjust the row size */
+        grid-template-rows: auto auto; /* Adjust the row size */
         gap: 10px;
         width: 100%; /* Make the container full width on small screens */
         height: 80%; /* Allow the container to adjust height as needed */

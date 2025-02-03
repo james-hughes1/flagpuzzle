@@ -4,7 +4,7 @@ const endMenu = document.getElementById('endMenu');
 const hintMenu = document.getElementById('hintMenu')
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
-const dropBtn = document.getElementById('dropBtn');
+const enterBtn = document.getElementById('enterBtn');
 const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
 const flagImg = document.getElementById('flagImg');
@@ -324,7 +324,9 @@ document.addEventListener('keydown', function(event) {
             }
             break;
         case 'ArrowDown':
-            blockMove = 'down';
+            if (answerCorrect) {
+                blockMove = 'down';
+            }
             break;
         case 'Enter':
             if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
@@ -346,8 +348,54 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-// Drop button - same as clicking Enter
-dropBtn.addEventListener('click', () => {
+// Add listeners for swipe actions
+let touchStartX = 0;
+let touchEndX = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+
+document.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX; // Get the touch start position
+    touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].clientX; // Get the touch end position
+    touchEndY = e.changedTouches[0].clientY;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const xDiff = touchEndX - touchStartX;
+    const yDiff = touchEndY - touchStartY;
+
+    // If the swipe is horizontal
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        if (xDiff > 0) {
+            console.log("Swiped Right");
+            if (answerCorrect) {
+                blockMove = 'right';
+            }
+        } else {
+            console.log("Swiped Left");
+            if (answerCorrect) {
+                blockMove = 'left';
+            }
+        }
+    }
+    // If the swipe is vertical
+    else {
+        if (yDiff > 0) {
+            console.log("Swiped Down");
+            if (answerCorrect) {
+                blockMove = 'down';
+            }
+        }
+    }
+}
+
+// Enter button - same as clicking Enter
+enterBtn.addEventListener('click', () => {
     if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
         pause = true;
         hintMenu.style.display = 'block';

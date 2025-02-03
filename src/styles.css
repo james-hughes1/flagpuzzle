@@ -9,6 +9,7 @@ body {
 
 h1 {
     text-align: center;
+    height: 10vh;
 }
 
 button {
@@ -131,6 +132,7 @@ button {
         grid-template-rows: repeat(var(--rows, 15), 25px);
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
+        justify-self: center;
     }
     .square {
         width: 25px;
@@ -143,5 +145,16 @@ button {
         gap: 10px;
         width: 100%; /* Make the container full width on small screens */
         height: auto; /* Allow the container to adjust height as needed */
+    }
+    /* Image container */
+    .image-container {
+        text-align: center;
+        position: relative;  /* Allows absolute positioning inside */
+        display: inline-block;
+        height: 10vh;
+    }
+
+    .image-container img {
+        height: auto;
     }
 }

@@ -165,13 +165,22 @@ button {
     .image-container img {
         height: 40px;
     }
+
+    #tick {
+        display: none;
+        position: absolute;  /* Places it on top of the flag */
+        top: 30%;
+        left: 30%;
+        width: 40%;
+        height: 20px;
+    }
 }
 
 /* Keyboard on mobile */
 .keyboard {
     display: grid;
-    grid-template-columns: repeat(10, 20px);
-    grid-template-rows: repeat(3, 20px);
+    grid-template-columns: repeat(10, 35px);
+    grid-template-rows: repeat(3, 35px);
     grid-gap: 3px;
     justify-content: center;
     margin-top: 3px;
@@ -208,8 +217,8 @@ button {
 @media (max-width: 768px) {
     #keyboard {
         display: grid;
-        grid-template-columns: repeat(10, 20px);
-        grid-template-rows: repeat(3, 20px);
+        grid-template-columns: repeat(10, 35px);
+        grid-template-rows: repeat(3, 35px);
         grid-gap: 3px;
         justify-content: center;
         margin-top: 3px;

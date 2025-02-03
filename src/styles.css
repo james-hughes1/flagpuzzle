@@ -127,13 +127,21 @@ button {
 /* Mobile options */
 @media (max-width: 768px) {
     #blockGrid {
-        grid-template-columns: repeat(var(--columns, 8), 15px);
-        grid-template-rows: repeat(var(--rows, 15), 15px);
+        grid-template-columns: repeat(var(--columns, 8), 25px);
+        grid-template-rows: repeat(var(--rows, 15), 25px);
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
     }
     .square {
-        width: 15px;
-        height: 15px;
+        width: 25px;
+        height: 25px;
+    }
+    /* Main game container */
+    #gameContainer {
+        display: grid;
+        grid-template-rows: 70% 30%;
+        gap: 10px;
+        width: 80%;
+        height: 80vh;
     }
 }

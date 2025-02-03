@@ -127,16 +127,11 @@ button {
 /* Mobile options */
 @media (max-width: 768px) {
     #blockGrid {
-        display: grid;
-        grid-template-columns: repeat(var(--columns, 8), 10px);
-        grid-template-rows: repeat(var(--rows, 15), 10px);
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
-        justify-self: end; /* Push to the right */
     }
     .square {
         width: 10px;
         height: 10px;
-        background-color: black;
     }
 }

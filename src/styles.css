@@ -136,12 +136,12 @@ button {
         width: 25px;
         height: 25px;
     }
-    /* Main game container */
     #gameContainer {
         display: grid;
-        grid-template-rows: 70% 30%;
+        grid-template-columns: 1fr; /* Stack everything vertically */
+        grid-template-rows: auto auto; /* Adjust the row size */
         gap: 10px;
-        width: 80%;
-        height: 80vh;
+        width: 100%; /* Make the container full width on small screens */
+        height: auto; /* Allow the container to adjust height as needed */
     }
 }

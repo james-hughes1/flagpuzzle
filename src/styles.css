@@ -40,7 +40,12 @@ button {
 
 /* Right section: Controls */
 #controls {
-    padding: 20px; /* Space between the different controls */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center elements horizontally */
+    justify-content: center; /* Center elements vertically */
+    height: 100%; /* Ensures full height of container */
+    gap: 10px; /* Adds spacing between elements */
 }
 
 /* Image container */
@@ -131,20 +136,20 @@ button {
 /* Mobile options */
 @media (max-width: 768px) {
     #blockGrid {
-        grid-template-columns: repeat(var(--columns, 8), 20px);
-        grid-template-rows: repeat(var(--rows, 15), 20px);
+        grid-template-columns: repeat(var(--columns, 8), 18px);
+        grid-template-rows: repeat(var(--rows, 15), 18px);
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
         justify-self: center;
     }
     .square {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
     }
     #gameContainer {
         display: grid;
         grid-template-columns: 1fr; /* Stack everything vertically */
-        grid-template-rows: auto auto; /* Adjust the row size */
+        grid-template-rows: 80% 20%; /* Adjust the row size */
         gap: 10px;
         width: 100%; /* Make the container full width on small screens */
         height: 80%; /* Allow the container to adjust height as needed */
@@ -154,10 +159,59 @@ button {
         text-align: center;
         position: relative;  /* Allows absolute positioning inside */
         display: inline-block;
-        height: 10vh;
+        height: 40px;
     }
 
     .image-container img {
-        height: auto;
+        height: 40px;
+    }
+}
+
+/* Keyboard on mobile */
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 20px);
+    grid-template-rows: repeat(3, 20px);
+    grid-gap: 3px;
+    justify-content: center;
+    margin-top: 3px;
+}
+
+.key {
+    padding: 3px;
+    font-size: 8px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+}
+
+.specialKey {
+    padding: 3px;
+    font-size: 8px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+}
+
+.key:active {
+    background-color: #ddd;
+}
+
+/* Hide the keyboard by default on desktop */
+#keyboard {
+    display: none;
+}
+
+/* Show the keyboard only on mobile */
+@media (max-width: 768px) {
+    #keyboard {
+        display: grid;
+        grid-template-columns: repeat(10, 20px);
+        grid-template-rows: repeat(3, 20px);
+        grid-gap: 3px;
+        justify-content: center;
+        margin-top: 3px;
     }
 }

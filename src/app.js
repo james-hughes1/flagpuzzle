@@ -11,6 +11,10 @@ const flagImg = document.getElementById('flagImg');
 const hintImg = document.getElementById('hintImg');
 const hintCountry = document.getElementById('hintCountry')
 const tick = document.getElementById('tick')
+const keys = document.querySelectorAll(".key");
+const spaceButton = document.getElementById("space");
+const backspaceButton = document.getElementById("backspace");
+const clearButton = document.getElementById("clear");
 const ROWBUFFER = 10;
 
 // Read in number of rows and columns from html code and set CSS style
@@ -422,6 +426,30 @@ pauseBtn.addEventListener('click', () => {
 resumeBtn.addEventListener('click', () => {
     pauseMenu.style.display = 'none'; // Hide the pause menu
     pause = false;
+});
+
+// Keyboard actions
+// Add event listeners for the keys
+keys.forEach(key => {
+    key.addEventListener("click", function() {
+        const keyValue = key.getAttribute("data-key");
+        answerInput.value += keyValue;
+    });
+});
+
+// Space button
+spaceButton.addEventListener("click", function() {
+    answerInput.value += " ";
+});
+
+// Backspace button
+backspaceButton.addEventListener("click", function() {
+    answerInput.value = answerInput.value.slice(0, -1);
+});
+
+// Clear button
+clearButton.addEventListener("click", function() {
+    answerInput.value = "";
 });
 
 // Initialise game parameters

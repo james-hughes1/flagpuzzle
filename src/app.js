@@ -61,7 +61,7 @@ function smartIndex(record) {
             unseenIndices.push(qIndex);
         }
     }
-    let seenAgain = (Math.random() > 0.2);
+    let seenAgain = (Math.random() > 0.4);
     let qIndex = 0;
     if (seenAgain) {
         let i = Math.floor(Math.random() * seenIndices.length);

@@ -5,11 +5,14 @@ body {
     height: 90vh;
     background-color: cyan;
     justify-content: center;
+    overflow-y: hidden; /* Disable vertical scrolling */
+    overflow-x: hidden; /* Disable horizontal scrolling */
 }
 
 h1 {
     text-align: center;
-    height: 10vh;
+    height: 5%;
+    font-size: medium;
 }
 
 button {
@@ -22,7 +25,7 @@ button {
     grid-template-columns: 70% 30%;
     gap: 20px;
     width: 80%;
-    height: 80vh;
+    height: 80%;
 }
 
 /* Left section: blockGrid */
@@ -128,15 +131,15 @@ button {
 /* Mobile options */
 @media (max-width: 768px) {
     #blockGrid {
-        grid-template-columns: repeat(var(--columns, 8), 25px);
-        grid-template-rows: repeat(var(--rows, 15), 25px);
+        grid-template-columns: repeat(var(--columns, 8), 20px);
+        grid-template-rows: repeat(var(--rows, 15), 20px);
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
         justify-self: center;
     }
     .square {
-        width: 25px;
-        height: 25px;
+        width: 20px;
+        height: 20px;
     }
     #gameContainer {
         display: grid;
@@ -144,7 +147,7 @@ button {
         grid-template-rows: auto auto; /* Adjust the row size */
         gap: 10px;
         width: 100%; /* Make the container full width on small screens */
-        height: auto; /* Allow the container to adjust height as needed */
+        height: 80%; /* Allow the container to adjust height as needed */
     }
     /* Image container */
     .image-container {

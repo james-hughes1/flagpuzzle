@@ -27,11 +27,11 @@ let blockMoveUnlocked = false;
 let blockMove = 'none';
 let pause = false;
 
-const NUMCOUNTRIES = 20;
+const NUMCOUNTRIES = 249;
 
 // Async function to country code mapping
 async function loadCountries() {
-    const response = await fetch('assets/iso-alpha-2-easy.json');
+    const response = await fetch('assets/iso-alpha-2.json');
     const data = await response.json();
     return data;
 }
@@ -65,14 +65,31 @@ function smartIndex(record) {
             unseenIndices.push(qIndex);
         }
     }
-    let seenAgain = (Math.random() > 0.4);
     let qIndex = 0;
-    if (seenAgain) {
+    if (seenIndices.length === 0) {
+        let i = Math.floor(Math.random() * unseenIndices.length);
+        qIndex = unseenIndices[i];
+    } else if (unseenIndices.length === 0) {
         let i = Math.floor(Math.random() * seenIndices.length);
         qIndex = seenIndices[i];
     } else {
-        let i = Math.floor(Math.random() * unseenIndices.length);
-        qIndex = unseenIndices[i];
+        // At the start choose unseen flags more frequently
+        let newRate = 0.0;
+        if (seenIndices.length > 50) {
+            newRate = 0.2;
+        } else if (seenIndices.length > 5) {
+            newRate = 0.4;
+        } else {
+            newRate = 0.8;
+        }
+        let seenAgain = (Math.random() > newRate);
+        if (seenAgain) {
+            let i = Math.floor(Math.random() * seenIndices.length);
+            qIndex = seenIndices[i];
+        } else {
+            let i = Math.floor(Math.random() * unseenIndices.length);
+            qIndex = unseenIndices[i];
+        }
     }
     console.log(qIndex);
     return qIndex;
@@ -255,17 +272,28 @@ function playGame() {
                     timeInterval *= 0.99;
                     clearInterval(intervalId);
                     playGame();
-                    // Update record
+                    // Update record and show hint
                     if (answerCorrect) {
                         countryRecord = updateRecord(countryRecord, countryIndex, "correct");
                         answerCorrect = false;
+                        // New flag
+                        countryIndex = smartIndex(countryRecord);
+                        updateCountry();
+                        tick.style.display = 'none';
                     } else {
                         countryRecord = updateRecord(countryRecord, countryIndex, "incorrect");
+                        // Show hint of flag
+                        pause = true;
+                        hintMenu.style.display = 'block';
+                        setTimeout(() => {
+                            pause = false;
+                            hintMenu.style.display = 'none';
+                            // New flag
+                            countryIndex = smartIndex(countryRecord);
+                            updateCountry();
+                            tick.style.display = 'none';
+                        }, 3000)
                     }
-                    // New flag
-                    countryIndex = smartIndex(countryRecord);
-                    updateCountry();
-                    tick.style.display = 'none';
                     // Change to fixed cells
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
@@ -335,12 +363,6 @@ document.addEventListener('keydown', function(event) {
         case 'Enter':
             if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
                 blockMove = 'down';
-                pause = true;
-                hintMenu.style.display = 'block';
-                setTimeout(() => {
-                    pause = false;
-                    hintMenu.style.display = 'none';
-                }, 3000)
             } else {
                 tick.style.display = 'block';
                 score++;

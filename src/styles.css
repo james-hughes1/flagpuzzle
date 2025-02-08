@@ -129,16 +129,12 @@ button {
     background-color: black;
 }
 
-.red {
+.ground {
+    background-color: rgb(165, 87, 39);
+}
+
+.falling {
     background-color: red;
-}
-
-.blue {
-    background-color: blue;
-}
-
-.grey {
-    background-color: grey;
 }
 
 /* Mobile options */
@@ -200,6 +196,8 @@ button {
     cursor: pointer;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
+    color: black;
+    font-size: large;
     border-radius: 1px;
 }
 
@@ -209,6 +207,8 @@ button {
     cursor: pointer;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
+    color: black;
+    font-size: large;
     border-radius: 1px;
 }
 
@@ -232,7 +232,12 @@ button {
         margin-top: 3px;
     }
 
-    #yourInputID {
+    #answerInput {
+        pointer-events: none; /* Prevents manual typing */
+        touch-action: none; /* Disables mobile keyboard */
+    }
+
+    #userInput {
         pointer-events: none; /* Prevents manual typing */
         touch-action: none; /* Disables mobile keyboard */
     }

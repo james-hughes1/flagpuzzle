@@ -9,8 +9,8 @@ const scoreElements = document.querySelectorAll(".score");
 const answerInput = document.getElementById('answerInput');
 const flagImg = document.getElementById('flagImg');
 const hintImg = document.getElementById('hintImg');
-const hintCountry = document.getElementById('hintCountry')
-const tick = document.getElementById('tick')
+const hintCountry = document.getElementById('hintCountry');
+const tick = document.getElementById('tick');
 const keys = document.querySelectorAll(".key");
 const spaceButton = document.getElementById("space");
 const backspaceButton = document.getElementById("backspace");
@@ -124,10 +124,10 @@ function createGrid(numRows, numCols, cellStates) {
             square.dataset.col = col;
             if (cellStates[row][col] === 1) {
                 // Stationary square
-                square.classList.add('red');
+                square.classList.add('ground');
             } else if (cellStates[row][col] === 2) {
                 // Falling square
-                square.classList.add('blue')
+                square.classList.add('falling')
             }
             blockGrid.appendChild(square);
         }
@@ -164,6 +164,12 @@ class Block {
         ];
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
+        // Power blocks
+        if (Math.random() > 0.9) {
+
+        } else {
+
+        }
     }
     shapePositions() {
         return this.shape.map(x => [x[0]+this.topLeftPosition.row, (x[1]+this.topLeftPosition.col) % this.numCols]);

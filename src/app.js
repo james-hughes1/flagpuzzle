@@ -423,12 +423,7 @@ function handleSwipe() {
 // Enter button - same as clicking Enter
 enterBtn.addEventListener('click', () => {
     if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
-        pause = true;
-        hintMenu.style.display = 'block';
-        setTimeout(() => {
-            pause = false;
-            hintMenu.style.display = 'none';
-        }, 3000)
+        blockMove = 'down';
     } else {
         tick.style.display = 'block';
         score++;

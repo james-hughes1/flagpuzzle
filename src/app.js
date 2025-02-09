@@ -15,6 +15,8 @@ const keys = document.querySelectorAll(".key");
 const spaceButton = document.getElementById("space");
 const backspaceButton = document.getElementById("backspace");
 const clearButton = document.getElementById("clear");
+const powerImgArray = document.querySelectorAll('.powerImg');
+const powerSlotArray = document.querySelectorAll('.powerSlot');
 const ROWBUFFER = 10;
 
 // Read in number of rows and columns from html code and set CSS style
@@ -44,7 +46,24 @@ async function updateCountry() {
     answer = countries[countryIndex][1]["name"];
     flagImg.src = "/assets/flags/"+countryCode+".svg"
     hintImg.src = "/assets/flags/"+countryCode+".svg"
-    hintCountry.textContent = answer
+    hintCountry.textContent = answer;
+}
+
+// Update powers
+function updatePowers(powerStates) {
+    console.log(powerStates);
+    for (let powerId=0; powerId < 3; powerId++) {
+        if (powerId < powerStates.length) {
+            if (powerStates[powerId] === "water") {
+                powerImgArray[powerId].style.display = "block";
+                powerImgArray[powerId].src = "assets/rain.png";
+            } else {
+                powerImgArray[powerId].style.display = "none";
+            }
+        } else {
+            powerImgArray[powerId].style.display = "none";
+        }
+    }
 }
 
 // Smart question selector
@@ -91,7 +110,6 @@ function smartIndex(record) {
             qIndex = unseenIndices[i];
         }
     }
-    console.log(qIndex);
     return qIndex;
 }
 
@@ -101,7 +119,6 @@ function updateRecord(record, index, result) {
     } else {
         record[index].incorrect++;
     }
-    console.log(record);
     return record;
 }
 
@@ -128,6 +145,9 @@ function createGrid(numRows, numCols, cellStates) {
             } else if (cellStates[row][col] === 2) {
                 // Falling square
                 square.classList.add('falling')
+            } else if ([3,4,5].includes(cellStates[row][col])) {
+                // Water block, water object, inactive water object
+                square.classList.add('rain')
             }
             blockGrid.appendChild(square);
         }
@@ -165,10 +185,10 @@ class Block {
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
         // Power blocks
-        if (Math.random() > 0.9) {
-
+        if (Math.random() > 0.5) {
+            this.blockType = 3; // Water
         } else {
-
+            this.blockType = 2; // Normal
         }
     }
     shapePositions() {
@@ -194,6 +214,118 @@ class Block {
     }
 }
 
+class Water {
+    constructor() {
+        this.active = false;
+        this.spawned = false;
+    }
+    spawn(cellStates, row, col) {
+        this.position = {row: row, col: col};
+        cellStates[this.position.row][this.position.col] = 4;
+        this.active = true;
+        this.spawned = true;
+        this.percolation = 0;
+    }
+    move(cellStates) {
+        cellStates[this.position.row][this.position.col] = 0;
+        // Don't move if at bottom
+        if ((this.position.row < cellStates.length - 1) && this.active) {
+            // If cell below empty, move down once
+            if (cellStates[this.position.row+1][this.position.col] === 0) {
+                this.position.row++;
+            // For any obstacle besides water, move through it until the bottom, or empty, or inactive water below
+            } else if (this.percolation < 2) {
+                this.percolation++;
+                this.position.row++;
+                while ((this.position.row < cellStates.length - 1) && (cellStates[this.position.row][this.position.col] != 0) && (cellStates[this.position.row+1][this.position.col] != 5)) {
+                    this.position.row++;
+                }
+            }
+            if (this.position.row+1 < cellStates.length) {
+                if (cellStates[this.position.row+1][this.position.col] === 5) {
+                    // Water collects on top of other water
+                    this.active = false;
+                    cellStates[this.position.row][this.position.col] = 5;
+                } else {
+                    cellStates[this.position.row][this.position.col] = 4;
+                }
+            }
+        } else {
+            this.active = false;
+            cellStates[this.position.row][this.position.col] = 5;
+        }
+    }
+    solidify(cellStates) {
+        cellStates[this.position.row][this.position.col] = 1;
+        this.spawned = false;
+    }
+}
+
+class WaterGroup {
+    constructor(numCols) {
+        this.active = false;
+        this.spawned = false;
+        this.waterArray = [];
+        this.numWater = Math.ceil(Math.sqrt(Math.random()) * 3 * numCols);
+        this.numCols = numCols;
+        for (let i=0; i < this.numWater; i++) {
+            this.waterArray.push(new Water());
+        }
+    }
+    spawn(cellStates) {
+        this.active = true;
+        this.spawned = true;
+        let i = 0;
+        for (let row=2; row >=0; row--) {
+            for (let col=0; col < this.numCols; col++) {
+                if ((Math.random() < this.numWater / (3 * this.numCols)) && (i<this.numWater)) {
+                    this.waterArray[i].spawn(cellStates, row, col);
+                    i++;
+                }
+            }
+        }
+    }
+    move(cellStates) {
+        let numActive = this.numWater;
+        for (let i=0; i < this.numWater; i++) {
+            this.waterArray[i].move(cellStates);
+            if (!this.waterArray[i].active) {
+                numActive--;
+            }
+        }
+        if (numActive === 0) {this.active = false};
+    }
+    solidify(cellStates) {
+        for (let i=0; i < this.numWater; i++) {
+            cellStates[this.waterArray[i].position.row][this.waterArray[i].position.col] = 1;
+        }
+        this.spawned = false;
+    }
+}
+
+function eliminateRows(cellStates) {
+    // Check for full rows to eliminate
+    for (let row = ROWBUFFER; row < numRows; row++) {
+        let fullRow = true;
+        for (let col = 0; col < numCols; col++) {
+            fullRow = fullRow && (cellStates[row][col] === 1);
+        }
+        if (fullRow) {
+            // Shift cell values down
+            for (let aboveRow = row; aboveRow >= 0; aboveRow--) {
+                for (let col = 0; col < numCols; col++) {
+                    if (aboveRow > 0) {
+                        cellStates[aboveRow][col] = cellStates[aboveRow - 1][col];
+                    } else {
+                        cellStates[aboveRow][col] = 0;
+                    }
+                }
+            }
+        }
+    }
+    return cellStates;
+}
+
 // Game loop function
 function playGame() {
     // Block move function
@@ -214,7 +346,7 @@ function playGame() {
             blockPositions = fallingBlock.shapePositions();
             for (let cell = 0; cell < 4; cell++) {
                 let cellPosition = blockPositions[cell];
-                cellStates[cellPosition[0]][cellPosition[1]] = 2;
+                cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
             }
         }
         return moveValid;
@@ -224,107 +356,115 @@ function playGame() {
     intervalId = setInterval(() => {
         // Check unpaused
         if (!pause) {
-            // Square movement
-            if (!falling) {
-                // Square falling
-                fallingBlock.reset();
-                blockPositions = fallingBlock.shapePositions();
-                for (let cell = 0; cell < 4; cell++) {
-                    let cellPosition = blockPositions[cell];
-                    cellStates[cellPosition[0]][cellPosition[1]] = 2;
-                }
-                falling = true;
-            } else {
-                // Moving block left, right, or down
-                if (blockMove != 'none') {
-                    if (blockMoveUnlocked) {
-                        if (blockMove != 'down') {
-                            moveBlockCheck();
-                        } else {
-                            moveValid = moveBlockCheck();
-                            while (moveValid) {
-                                moveValid = moveBlockCheck();
-                            }
-                        }
-                        blockMove = 'none';
-                    }
-                }
-                // Transition from falling to stationary
-                // Check if hit floor
-                let stillFalling = true;
-                contactPositions = fallingBlock.contactPositions("down");
-                for (let cell = 0; cell < 4; cell++) {
-                    let cellPosition = contactPositions[cell];
-                    stillFalling = stillFalling && (cellPosition[0] < numRows) && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
-                }
-                if (stillFalling) {
-                    // Handle falling
+            if (!powerActive) {
+                // Square movement
+                if (!falling) {
+                    // Square falling
+                    fallingBlock.reset();
                     blockPositions = fallingBlock.shapePositions();
                     for (let cell = 0; cell < 4; cell++) {
                         let cellPosition = blockPositions[cell];
-                        cellStates[cellPosition[0]][cellPosition[1]] = 0;
+                        cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
                     }
-                    fallingBlock.move("down");
-                    blockPositions = fallingBlock.shapePositions();
-                    for (let cell = 0; cell < 4; cell++) {
-                        let cellPosition = blockPositions[cell];
-                        cellStates[cellPosition[0]][cellPosition[1]] = 2;
-                    }
+                    falling = true;
                 } else {
-                    // Handle hitting the floor
-                    falling = false;
-                    blockMoveUnlocked = false;
-                    // Increase game speed
-                    timeInterval *= 0.99;
-                    clearInterval(intervalId);
-                    playGame();
-                    // Update record and show hint
-                    if (answerCorrect) {
-                        countryRecord = updateRecord(countryRecord, countryIndex, "correct");
-                        answerCorrect = false;
-                        // New flag
-                        countryIndex = smartIndex(countryRecord);
-                        updateCountry();
-                        tick.style.display = 'none';
+                    // Moving block left, right, or down
+                    if (blockMove != 'none') {
+                        if (blockMoveUnlocked) {
+                            if (blockMove != 'down') {
+                                moveBlockCheck();
+                            } else {
+                                moveValid = moveBlockCheck();
+                                while (moveValid) {
+                                    moveValid = moveBlockCheck();
+                                }
+                            }
+                            blockMove = 'none';
+                        }
+                    }
+                    // Transition from falling to stationary
+                    // Check if hit floor
+                    let stillFalling = true;
+                    contactPositions = fallingBlock.contactPositions("down");
+                    for (let cell = 0; cell < 4; cell++) {
+                        let cellPosition = contactPositions[cell];
+                        stillFalling = stillFalling && (cellPosition[0] < numRows) && (cellStates[cellPosition[0]][cellPosition[1]] != 1);
+                    }
+                    if (stillFalling) {
+                        // Handle falling
+                        blockPositions = fallingBlock.shapePositions();
+                        for (let cell = 0; cell < 4; cell++) {
+                            let cellPosition = blockPositions[cell];
+                            cellStates[cellPosition[0]][cellPosition[1]] = 0;
+                        }
+                        fallingBlock.move("down");
+                        blockPositions = fallingBlock.shapePositions();
+                        for (let cell = 0; cell < 4; cell++) {
+                            let cellPosition = blockPositions[cell];
+                            cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
+                        }
                     } else {
-                        countryRecord = updateRecord(countryRecord, countryIndex, "incorrect");
-                        // Show hint of flag
-                        pause = true;
-                        hintMenu.style.display = 'block';
-                        setTimeout(() => {
-                            pause = false;
-                            hintMenu.style.display = 'none';
+                        // Handle hitting the floor
+                        falling = false;
+                        blockMoveUnlocked = false;
+                        // Increase game speed
+                        timeInterval *= 0.99;
+                        clearInterval(intervalId);
+                        playGame();
+                        // Update record and show hint
+                        if (answerCorrect) {
+                            countryRecord = updateRecord(countryRecord, countryIndex, "correct");
+                            answerCorrect = false;
                             // New flag
                             countryIndex = smartIndex(countryRecord);
                             updateCountry();
                             tick.style.display = 'none';
-                        }, 3000)
-                    }
-                    // Change to fixed cells
-                    blockPositions = fallingBlock.shapePositions();
-                    for (let cell = 0; cell < 4; cell++) {
-                        let cellPosition = blockPositions[cell];
-                        cellStates[cellPosition[0]][cellPosition[1]] = 1;
-                    }
-                    // Check for full rows to eliminate
-                    for (let row = ROWBUFFER; row < numRows; row++) {
-                        let fullRow = true;
-                        for (let col = 0; col < numCols; col++) {
-                            fullRow = fullRow && (cellStates[row][col] === 1);
+                        } else {
+                            countryRecord = updateRecord(countryRecord, countryIndex, "incorrect");
+                            // Show hint of flag
+                            pause = true;
+                            hintMenu.style.display = 'block';
+                            setTimeout(() => {
+                                pause = false;
+                                hintMenu.style.display = 'none';
+                                // New flag
+                                countryIndex = smartIndex(countryRecord);
+                                updateCountry();
+                                tick.style.display = 'none';
+                            }, 3000)
                         }
-                        if (fullRow) {
-                            // Shift cell values down
-                            for (let aboveRow = row; aboveRow >= 0; aboveRow--) {
-                                for (let col = 0; col < numCols; col++) {
-                                    if (aboveRow > 0) {
-                                        cellStates[aboveRow][col] = cellStates[aboveRow - 1][col];
-                                    } else {
-                                        cellStates[aboveRow][col] = 0;
-                                    }
-                                }
-                            }
+                        // Switch to power if used
+                        if (powerUsed != "none") {
+                            powerActive = true;
                         }
+                        // Change to fixed cells
+                        blockPositions = fallingBlock.shapePositions();
+                        for (let cell = 0; cell < 4; cell++) {
+                            let cellPosition = blockPositions[cell];
+                            cellStates[cellPosition[0]][cellPosition[1]] = 1;
+                        }
+                        // Eliminate rows
+                        cellStates = eliminateRows(cellStates);
                     }
+                }
+            } else {
+                // Powers
+                if (powerUsed === "water") {
+                    if (!waterGroup.spawned) {
+                        // Initialise
+                        waterGroup.spawn(cellStates);
+                    } else if (waterGroup.active) {
+                        // Move
+                        waterGroup.move(cellStates)
+                    } else {
+                        // End
+                        waterGroup.solidify(cellStates);
+                        powerUsed = "none";
+                        powerActive = false;
+                        // Eliminate rows
+                        cellStates = eliminateRows(cellStates);
+                    }
+                    createGrid(numRows, numCols, cellStates);
                 }
             }
         }
@@ -367,16 +507,22 @@ document.addEventListener('keydown', function(event) {
             }
             break;
         case 'Enter':
-            if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
-                blockMove = 'down';
-            } else {
-                tick.style.display = 'block';
-                score++;
-                updateScoreCounter(score);
-                answerCorrect = true;
+            if (!pause) {
+                if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+                    blockMove = 'down';
+                } else {
+                    tick.style.display = 'block';
+                    score++;
+                    if ((fallingBlock.blockType === 3) && (powers.length < 3)) {
+                        powers.push("water");
+                        updatePowers(powers);
+                    }
+                    updateScoreCounter(score);
+                    answerCorrect = true;
+                }
+                blockMoveUnlocked = true;
+                answerInput.value = '';
             }
-            blockMoveUnlocked = true;
-            answerInput.value = '';
     }
 });
 
@@ -404,12 +550,10 @@ function handleSwipe() {
     // If the swipe is horizontal
     if (Math.abs(xDiff) > Math.abs(yDiff)) {
         if (xDiff > 0) {
-            console.log("Swiped Right");
             if (answerCorrect) {
                 blockMove = 'right';
             }
         } else {
-            console.log("Swiped Left");
             if (answerCorrect) {
                 blockMove = 'left';
             }
@@ -418,7 +562,6 @@ function handleSwipe() {
     // If the swipe is vertical
     else {
         if (yDiff > 0) {
-            console.log("Swiped Down");
             if (answerCorrect) {
                 blockMove = 'down';
             }
@@ -428,16 +571,22 @@ function handleSwipe() {
 
 // Enter button - same as clicking Enter
 enterBtn.addEventListener('click', () => {
-    if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
-        blockMove = 'down';
-    } else {
-        tick.style.display = 'block';
-        score++;
-        updateScoreCounter(score);
-        answerCorrect = true;
+    if (!pause) {
+        if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+            blockMove = 'down';
+        } else {
+            tick.style.display = 'block';
+            score++;
+            if ((fallingBlock.blockType === 3) && (powers.length < 3)) {
+                powers.push("water");
+                updatePowers(powers);
+            }
+            updateScoreCounter(score);
+            answerCorrect = true;
+        }
+        blockMoveUnlocked = true;
+        answerInput.value = '';
     }
-    blockMoveUnlocked = true;
-    answerInput.value = '';
 });
 
 // Pause & Resume Menu
@@ -475,6 +624,18 @@ clearButton.addEventListener("click", function() {
     answerInput.value = "";
 });
 
+// Power buttons
+powerSlotArray.forEach(slot => {
+    slot.addEventListener("click", function() {
+        const slotNumber = parseInt(slot.getAttribute("data-number"), 10);
+        if ((powers.length > slotNumber) && (powerUsed === "none")) {
+            powerUsed = powers[slotNumber];
+            powers.splice(slotNumber, 1);
+            updatePowers(powers);
+        }
+    });
+});
+
 // Initialise game parameters
 let timeInterval = 500;
 blockMoveUnlocked = false;
@@ -496,16 +657,25 @@ let fallingBlock = new Block(numCols);
 let blockPositions = fallingBlock.shapePositions();
 for (let cell = 0; cell < 4; cell++) {
     let cellPosition = blockPositions[cell];
-    cellStates[cellPosition[0]][cellPosition[1]] = 2;
+    cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
 }
 let falling = true;
 let answerCorrect = false;
+
+// Create water
+waterGroup = new WaterGroup(numCols);
 
 // Initial country
 let answer = "";
 let countryIndex = 0;
 let countryCode = "";
 updateCountry();
+
+// Powers
+let powers = [];
+updatePowers(powers);
+let powerUsed = "none";
+let powerActive = false;
 
 // Initial display
 createGrid(numRows, numCols, cellStates);

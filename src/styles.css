@@ -39,10 +39,47 @@ button {
 /* Left section: blockGrid */
 #blockGrid {
     display: grid;
-    grid-template-columns: repeat(var(--columns, 8), 40px);
-    grid-template-rows: repeat(var(--rows, 15), 40px);
+    grid-template-columns: repeat(var(--columns, 8), 30px);
+    grid-template-rows: repeat(var(--rows, 15), 30px);
     grid-gap: 4px; /* Space between squares */
     margin-bottom: 8px;
+}
+
+/* Power slots */
+#powerGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 equal squares */
+    gap: 10px; /* Spacing between squares */
+    margin-top: 20px; /* Space below blockGrid */
+    justify-content: center;
+}
+.powerSlot {
+    width: 100px;
+    height: 100px;
+    background-color: grey;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.powerImg{
+    display: none;
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: auto;
+}
+
+#visualArea {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center elements horizontally */
+    justify-content: center; /* Center elements vertically */
+    height: 100%; /* Ensures full height of container */
+    gap: 10px; /* Adds spacing between elements */
     justify-self: end; /* Push to the right */
 }
 
@@ -75,7 +112,7 @@ button {
     left: 30%;
     width: 40%;
     height: auto;
-  }
+}
 
 /* Pause Menu Pop Up*/
 #pauseMenu {
@@ -124,8 +161,8 @@ button {
 
 /* Style for the squares */
 .square {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     background-color: black;
 }
 
@@ -137,6 +174,10 @@ button {
     background-color: red;
 }
 
+.rain {
+    background-color: blue;
+}
+
 /* Mobile options */
 @media (max-width: 768px) {
     #blockGrid {
@@ -145,6 +186,32 @@ button {
         grid-gap: 1px; /* Space between squares */
         margin-bottom: 1px;
         justify-self: center;
+    }
+    /* Power slots */
+    #powerGrid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Creates 3 equal squares */
+        gap: 10px; /* Spacing between squares */
+        margin-top: 20px; /* Space below blockGrid */
+        justify-content: center;
+    }
+    .powerSlot {
+        width: 40px;
+        height: 40px;
+        background-color: grey;
+        border: 2px solid black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #visualArea {
+        display: flex;
+        flex-direction: column; /* Stack elements vertically */
+        align-items: center; /* Center elements horizontally */
+        justify-content: center; /* Center elements vertically */
+        height: 100%; /* Ensures full height of container */
+        gap: 10px; /* Adds spacing between elements */
+        justify-self: center; /* Push to the right */
     }
     .square {
         width: 18px;

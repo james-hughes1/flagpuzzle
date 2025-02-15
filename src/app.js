@@ -225,11 +225,15 @@ class Water {
         this.active = true;
         this.spawned = true;
         this.percolation = 0;
+        this.maxRow = cellStates.length - 1
+        while (cellStates[this.maxRow][this.position.col] != 0) {
+            this.maxRow--;
+        }
     }
     move(cellStates) {
         cellStates[this.position.row][this.position.col] = 0;
         // Don't move if at bottom
-        if ((this.position.row < cellStates.length - 1) && this.active) {
+        if ((this.position.row < this.maxRow) && this.active) {
             // If cell below empty, move down once
             if (cellStates[this.position.row+1][this.position.col] === 0) {
                 this.position.row++;
@@ -238,7 +242,7 @@ class Water {
                 if (this.percolation < 2) {
                     this.percolation++;
                     this.position.row++;
-                    while ((this.position.row < cellStates.length - 1) && (cellStates[this.position.row][this.position.col] != 0) && (cellStates[this.position.row+1][this.position.col] != 5)) {
+                    while ((this.position.row < this.maxRow) && (cellStates[this.position.row][this.position.col] != 0) && (cellStates[this.position.row+1][this.position.col] != 5)) {
                         this.position.row++;
                     }
                 } else {
@@ -247,7 +251,7 @@ class Water {
                     cellStates[this.position.row][this.position.col] = 5;
                 }
             }
-            if (this.position.row+1 < cellStates.length) {
+            if (this.position.row < this.maxRow) {
                 if (cellStates[this.position.row+1][this.position.col] === 5) {
                     // Water collects on top of other water
                     this.active = false;
@@ -275,22 +279,19 @@ class WaterGroup {
     constructor(numCols) {
         this.active = false;
         this.spawned = false;
-        this.waterArray = [];
-        this.numWater = Math.ceil(Math.sqrt(Math.random()) * 3 * numCols);
         this.numCols = numCols;
-        for (let i=0; i < this.numWater; i++) {
-            this.waterArray.push(new Water());
-        }
     }
     spawn(cellStates) {
+        this.waterArray = [];
         this.active = true;
         this.spawned = true;
-        let i = 0;
+        this.numWater = 0;
         for (let row=2; row >=0; row--) {
             for (let col=0; col < this.numCols; col++) {
-                if ((Math.random() < this.numWater / (3 * this.numCols)) && (i<this.numWater)) {
-                    this.waterArray[i].spawn(cellStates, row, col);
-                    i++;
+                if (Math.random() > 0.5) {
+                    this.waterArray.push(new Water())
+                    this.waterArray[this.numWater].spawn(cellStates, row, col);
+                    this.numWater++;
                 }
             }
         }

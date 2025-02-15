@@ -234,11 +234,17 @@ class Water {
             if (cellStates[this.position.row+1][this.position.col] === 0) {
                 this.position.row++;
             // For any obstacle besides water, move through it until the bottom, or empty, or inactive water below
-            } else if (this.percolation < 2) {
-                this.percolation++;
-                this.position.row++;
-                while ((this.position.row < cellStates.length - 1) && (cellStates[this.position.row][this.position.col] != 0) && (cellStates[this.position.row+1][this.position.col] != 5)) {
+            } else {
+                if (this.percolation < 2) {
+                    this.percolation++;
                     this.position.row++;
+                    while ((this.position.row < cellStates.length - 1) && (cellStates[this.position.row][this.position.col] != 0) && (cellStates[this.position.row+1][this.position.col] != 5)) {
+                        this.position.row++;
+                    }
+                } else {
+                    // Water that can't percolate any further
+                    this.active = false;
+                    cellStates[this.position.row][this.position.col] = 5;
                 }
             }
             if (this.position.row+1 < cellStates.length) {
@@ -249,6 +255,10 @@ class Water {
                 } else {
                     cellStates[this.position.row][this.position.col] = 4;
                 }
+            } else {
+                // Water at the bottom
+                this.active = false;
+                cellStates[this.position.row][this.position.col] = 5;
             }
         } else {
             this.active = false;

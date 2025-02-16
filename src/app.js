@@ -191,8 +191,8 @@ class Block {
         let shapeId = Math.floor(shapeList.length * Math.random());
         this.shape = shapeList[shapeId];
         // Power blocks
-        if (Math.random() > 0.5) {
-            if (Math.random() > 0.99) {
+        if (Math.random() < 0.5) {
+            if (Math.random() < 0.5) {
                 this.blockType = 3; // Water
             } else {
                 this.blockType = 6; // Fire
@@ -299,7 +299,7 @@ class WaterGroup {
         for (let row=2; row >=0; row--) {
             for (let col=0; col < this.numCols; col++) {
                 if (Math.random() > 0.5) {
-                    this.waterArray.push(new Water())
+                    this.waterArray.push(new Water());
                     this.waterArray[this.numWater].spawn(cellStates, row, col);
                     this.numWater++;
                 }
@@ -341,23 +341,77 @@ class Fire {
         // Don't move if at bottom
         if ((this.position.row < cellStates.length - 1) && this.active) {
             // If cell below empty, move down once
-            if (cellStates[this.position.row+1][this.position.col] === 0) {
+            if ([0,7].includes(cellStates[this.position.row+1][this.position.col])) {
                 this.position.row++;
                 cellStates[this.position.row][this.position.col] = 6;
             } else {
                 this.active = false;
-                cellStates[this.position.row][this.position.col] = 7;
+                this.explode(cellStates);
             }
         } else {
             this.active = false;
-            cellStates[this.position.row][this.position.col] = 7;
+            this.explode(cellStates);
         }
     }
     explode(cellStates) {
-        for (let row = this.position.row - 1; row <= Math.min(cellStates.length - 1, this.position.row+1); row++) {
-            cellStates[row][(this.position.col + this.numCols - 1) % this.numCols] = 7;
-            cellStates[row][this.position.col] = 7;
-            cellStates[row][(this.position.col + + 1) % this.numCols] = 7;
+        if (this.spawned) {
+            for (let row = this.position.row - 1; row <= Math.min(cellStates.length - 1, this.position.row+1); row++) {
+                cellStates[row][(this.position.col - 1) % this.numCols] = 7;
+                cellStates[row][this.position.col] = 7;
+                cellStates[row][(this.position.col + 1) % this.numCols] = 7;
+            }
+        }
+        this.spawned = false;
+    }
+}
+
+class FireGroup {
+    constructor(numCols) {
+        this.active = false;
+        this.spawned = false;
+        this.numCols = numCols;
+    }
+    spawn(cellStates) {
+        this.fireArray = [];
+        this.active = true;
+        this.spawned = true;
+        this.numFire = 0;
+        for (let row=4; row >=0; row--) {
+            for (let col=0; col < this.numCols; col++) {
+                if (Math.random() < 0.05) {
+                    this.fireArray.push(new Fire(this.numCols));
+                    this.fireArray[this.numFire].spawn(cellStates, row, col);
+                    this.numFire++;
+                }
+            }
+        }
+    }
+    move(numRows, numCols, cellStates) {
+        // Clear explosions
+        for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+                if (cellStates[row][col] === 7) {
+                    cellStates[row][col] = 0;
+                }
+            }
+        }
+        let numActive = this.numFire;
+        for (let i=0; i < this.numFire; i++) {
+            this.fireArray[i].move(cellStates);
+            if (!this.fireArray[i].active) {
+                numActive--;
+            }
+        }
+        if (numActive === 0) {this.active = false};
+    }
+    despawn() {
+        // Clear explosions
+        for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+                if (cellStates[row][col] === 7) {
+                    cellStates[row][col] = 0;
+                }
+            }
         }
         this.spawned = false;
     }
@@ -515,7 +569,7 @@ function playGame() {
                         waterGroup.spawn(cellStates);
                     } else if (waterGroup.active) {
                         // Move
-                        waterGroup.move(cellStates)
+                        waterGroup.move(cellStates);
                     } else {
                         // End
                         waterGroup.solidify(cellStates);
@@ -526,28 +580,17 @@ function playGame() {
                     }
                     createGrid(numRows, numCols, cellStates);
                 } else if (powerUsed === "fire") {
-                    if (!fire.spawned) {
+                    if (!fireGroup.spawned) {
                         // Initialise
-                        fire.spawn(cellStates, 2, 6);
-                    } else if (fire.active) {
+                        fireGroup.spawn(cellStates);
+                    } else if (fireGroup.active) {
                         // Move
-                        fire.move(cellStates)
+                        fireGroup.move(numRows, numCols, cellStates);
                     } else {
                         // End
-                        fire.explode(cellStates);
-                        createGrid(numRows, numCols, cellStates);
+                        fireGroup.despawn();
                         powerUsed = "none";
                         powerActive = false;
-                        // Pause and then clear explosions
-                        setTimeout(() => {
-                            for (let row = 0; row < numRows; row++) {
-                                for (let col = 0; col < numCols; col++) {
-                                    if (cellStates[row][col] === 7) {
-                                        cellStates[row][col] = 0;
-                                    }
-                                }
-                            }
-                        }, 1000);
                     }
                     createGrid(numRows, numCols, cellStates);
                 }
@@ -592,7 +635,7 @@ document.addEventListener('keydown', function(event) {
             }
             break;
         case 'Enter':
-            if (!pause) {
+            if ((!pause) && (!powerActive)) {
                 if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
                     blockMove = 'down';
                 } else {
@@ -662,7 +705,7 @@ function handleSwipe() {
 
 // Enter button - same as clicking Enter
 enterBtn.addEventListener('click', () => {
-    if (!pause) {
+    if ((!pause) && (!powerActive)) {
         if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
             blockMove = 'down';
         } else {
@@ -695,6 +738,7 @@ pauseBtn.addEventListener('click', () => {
 resumeBtn.addEventListener('click', () => {
     pauseMenu.style.display = 'none'; // Hide the pause menu
     pause = false;
+    answerInput.value = '';
 });
 
 // Keyboard actions
@@ -761,7 +805,7 @@ let answerCorrect = false;
 
 // Create water, fire
 waterGroup = new WaterGroup(numCols);
-fire = new Fire(numCols);
+fireGroup = new FireGroup(numCols);
 
 // Initial country
 let answer = "";

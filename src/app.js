@@ -57,6 +57,9 @@ function updatePowers(powerStates) {
             if (powerStates[powerId] === "water") {
                 powerImgArray[powerId].style.display = "block";
                 powerImgArray[powerId].src = "assets/rain.png";
+            } else if (powerStates[powerId] === "fire") {
+                powerImgArray[powerId].style.display = "block";
+                powerImgArray[powerId].src = "assets/fire2.png";
             } else {
                 powerImgArray[powerId].style.display = "none";
             }
@@ -148,6 +151,9 @@ function createGrid(numRows, numCols, cellStates) {
             } else if ([3,4,5].includes(cellStates[row][col])) {
                 // Water block, water object, inactive water object
                 square.classList.add('rain')
+            } else if ([6,7,8].includes(cellStates[row][col])) {
+                // Fire block, fire object, inactive fire object
+                square.classList.add('fire')
             }
             blockGrid.appendChild(square);
         }
@@ -186,7 +192,11 @@ class Block {
         this.shape = shapeList[shapeId];
         // Power blocks
         if (Math.random() > 0.5) {
-            this.blockType = 3; // Water
+            if (Math.random() > 0.99) {
+                this.blockType = 3; // Water
+            } else {
+                this.blockType = 6; // Fire
+            }
         } else {
             this.blockType = 2; // Normal
         }
@@ -309,6 +319,45 @@ class WaterGroup {
     solidify(cellStates) {
         for (let i=0; i < this.numWater; i++) {
             cellStates[this.waterArray[i].position.row][this.waterArray[i].position.col] = 1;
+        }
+        this.spawned = false;
+    }
+}
+
+class Fire {
+    constructor(numCols) {
+        this.active = false;
+        this.spawned = false;
+        this.numCols = numCols;
+    }
+    spawn(cellStates, row, col) {
+        this.position = {row: row, col: col};
+        cellStates[this.position.row][this.position.col] = 6;
+        this.active = true;
+        this.spawned = true;
+    }
+    move(cellStates) {
+        cellStates[this.position.row][this.position.col] = 0;
+        // Don't move if at bottom
+        if ((this.position.row < cellStates.length - 1) && this.active) {
+            // If cell below empty, move down once
+            if (cellStates[this.position.row+1][this.position.col] === 0) {
+                this.position.row++;
+                cellStates[this.position.row][this.position.col] = 6;
+            } else {
+                this.active = false;
+                cellStates[this.position.row][this.position.col] = 7;
+            }
+        } else {
+            this.active = false;
+            cellStates[this.position.row][this.position.col] = 7;
+        }
+    }
+    explode(cellStates) {
+        for (let row = this.position.row - 1; row <= Math.min(cellStates.length - 1, this.position.row+1); row++) {
+            cellStates[row][(this.position.col + this.numCols - 1) % this.numCols] = 7;
+            cellStates[row][this.position.col] = 7;
+            cellStates[row][(this.position.col + + 1) % this.numCols] = 7;
         }
         this.spawned = false;
     }
@@ -476,6 +525,31 @@ function playGame() {
                         cellStates = eliminateRows(cellStates);
                     }
                     createGrid(numRows, numCols, cellStates);
+                } else if (powerUsed === "fire") {
+                    if (!fire.spawned) {
+                        // Initialise
+                        fire.spawn(cellStates, 2, 6);
+                    } else if (fire.active) {
+                        // Move
+                        fire.move(cellStates)
+                    } else {
+                        // End
+                        fire.explode(cellStates);
+                        createGrid(numRows, numCols, cellStates);
+                        powerUsed = "none";
+                        powerActive = false;
+                        // Pause and then clear explosions
+                        setTimeout(() => {
+                            for (let row = 0; row < numRows; row++) {
+                                for (let col = 0; col < numCols; col++) {
+                                    if (cellStates[row][col] === 7) {
+                                        cellStates[row][col] = 0;
+                                    }
+                                }
+                            }
+                        }, 1000);
+                    }
+                    createGrid(numRows, numCols, cellStates);
                 }
             }
         }
@@ -524,9 +598,15 @@ document.addEventListener('keydown', function(event) {
                 } else {
                     tick.style.display = 'block';
                     score++;
-                    if ((fallingBlock.blockType === 3) && (powers.length < 3)) {
-                        powers.push("water");
-                        updatePowers(powers);
+                    if (powers.length < 3) {
+                        if (fallingBlock.blockType === 3) {
+                            powers.push("water");
+                            updatePowers(powers);
+                        }
+                        if (fallingBlock.blockType === 6) {
+                            powers.push("fire");
+                            updatePowers(powers);
+                        }
                     }
                     updateScoreCounter(score);
                     answerCorrect = true;
@@ -588,9 +668,15 @@ enterBtn.addEventListener('click', () => {
         } else {
             tick.style.display = 'block';
             score++;
-            if ((fallingBlock.blockType === 3) && (powers.length < 3)) {
-                powers.push("water");
-                updatePowers(powers);
+            if (powers.length < 3) {
+                if (fallingBlock.blockType === 3) {
+                    powers.push("water");
+                    updatePowers(powers);
+                }
+                if (fallingBlock.blockType === 6) {
+                    powers.push("fire");
+                    updatePowers(powers);
+                }
             }
             updateScoreCounter(score);
             answerCorrect = true;
@@ -673,8 +759,9 @@ for (let cell = 0; cell < 4; cell++) {
 let falling = true;
 let answerCorrect = false;
 
-// Create water
+// Create water, fire
 waterGroup = new WaterGroup(numCols);
+fire = new Fire(numCols);
 
 // Initial country
 let answer = "";

@@ -171,11 +171,15 @@ button {
 }
 
 .falling {
-    background-color: red;
+    background-color: white;
 }
 
 .rain {
     background-color: blue;
+}
+
+.fire {
+    background-color: red;
 }
 
 /* Mobile options */

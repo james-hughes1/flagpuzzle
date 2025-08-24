@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/keyboard.css">
+  <link rel="stylesheet" href="/styles/leaderboard.css">
   <title>About Page</title>
 </head>
 <body>
@@ -27,15 +28,16 @@
   </script>
 
   <!-- Leaderboard -->
-  <section id="leaderboard">
-  <h2>Leaderboard</h2>
-  <ul>
-    <% scores.forEach(s => { %>
-      <li><%= s.username %> — <%= s.score %></li>
-    <% }) %>
-  </ul>
-  </section>
-  <script src="/leaderboard.js"></script>
+  <div class="leaderboard-container">
+    <section id="leaderboard">
+      <h2>Leaderboard</h2>
+      <ul>
+        <% scores.forEach(s => { %>
+          <li><%= s.username %> — <%= s.score %></li>
+        <% }) %>
+      </ul>
+    </section>
+  </div>
 
 </body>
 </html>

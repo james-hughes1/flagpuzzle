@@ -67,7 +67,15 @@
     <button id="resumeBtn">Resume</button>
   </div>
   <div id="endMenu">
-    <p><%= username %>, you got an incredible <span class="score">0</span> points.</p>
+    <p><%= username %>, you got an incredible <span class="score">0</span> points. You will be added to the existing leaderboard...</p>
+    <section id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul>
+      <% scores.forEach(s => { %>
+        <li><%= s.username %> — <%= s.score %></li>
+      <% }) %>
+    </ul>
+    </section>
     <form action="/about" method="GET">
       <button type="submit">Play Again</button>
     </form>

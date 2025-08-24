@@ -1,4 +1,5 @@
 import { Block, WaterGroup, FireGroup } from './blocks.js';
+import { QuizRecord } from './quiz.js';
 
 const blockGrid = document.getElementById('blockGrid');
 const pauseMenu = document.getElementById('pauseMenu');
@@ -30,26 +31,14 @@ let pause = false;
 const NUMCOUNTRIES = 246;
 
 // Async function to country code mapping
-async function loadCountries() {
+export async function loadCountries() {
   const response = await fetch('assets/iso-alpha-2.json');
   const data = await response.json();
   return data;
 }
 
-// Function to get country
-async function updateCountry() {
-  const countriesData = await loadCountries();
-  const countries = Object.entries(countriesData);
-  countryCode = countries[countryIndex][1]['alpha-2'].toLowerCase();
-  answer = countries[countryIndex][1]['name'];
-  flagImg.src = '/assets/flags/' + countryCode + '.svg';
-  hintImg.src = '/assets/flags/' + countryCode + '.svg';
-  hintCountry.textContent = answer;
-}
-
 // Update powers
-function updatePowers(powerStates) {
-  console.log(powerStates);
+export function updatePowers(powerStates) {
   for (let powerId = 0; powerId < 3; powerId++) {
     if (powerId < powerStates.length) {
       if (powerStates[powerId] === 'water') {
@@ -67,61 +56,18 @@ function updatePowers(powerStates) {
   }
 }
 
-// Smart question selector
-let countryRecord = [];
-for (let qIndex = 0; qIndex < NUMCOUNTRIES; qIndex++) {
-  countryRecord[qIndex] = { index: qIndex, correct: 0, incorrect: 0 };
+// Function to get country
+export async function updateCountry(countryIndex) {
+  const countriesData = await loadCountries();
+  const countries = Object.entries(countriesData);
+  countryCode = countries[countryIndex][1]['alpha-2'].toLowerCase();
+  answer = countries[countryIndex][1]['name'];
+  flagImg.src = '/assets/flags/' + countryCode + '.svg';
+  hintImg.src = '/assets/flags/' + countryCode + '.svg';
+  hintCountry.textContent = answer;
 }
 
-function smartIndex(record) {
-  let seenIndices = [];
-  let unseenIndices = [];
-  for (let qIndex = 0; qIndex < NUMCOUNTRIES; qIndex++) {
-    if (record[qIndex].correct + record[qIndex].incorrect > 0) {
-      for (let i = 0; i < 1 + record[qIndex].incorrect; i++) {
-        seenIndices.push(qIndex);
-      }
-    } else {
-      unseenIndices.push(qIndex);
-    }
-  }
-  let qIndex = 0;
-  if (seenIndices.length === 0) {
-    let i = Math.floor(Math.random() * unseenIndices.length);
-    qIndex = unseenIndices[i];
-  } else if (unseenIndices.length === 0) {
-    let i = Math.floor(Math.random() * seenIndices.length);
-    qIndex = seenIndices[i];
-  } else {
-    // At the start choose unseen flags more frequently
-    let newRate = 0.0;
-    if (seenIndices.length > 50) {
-      newRate = 0.2;
-    } else if (seenIndices.length > 5) {
-      newRate = 0.4;
-    } else {
-      newRate = 0.8;
-    }
-    let seenAgain = Math.random() > newRate;
-    if (seenAgain) {
-      let i = Math.floor(Math.random() * seenIndices.length);
-      qIndex = seenIndices[i];
-    } else {
-      let i = Math.floor(Math.random() * unseenIndices.length);
-      qIndex = unseenIndices[i];
-    }
-  }
-  return qIndex;
-}
-
-function updateRecord(record, index, result) {
-  if (result === 'correct') {
-    record[index].correct++;
-  } else {
-    record[index].incorrect++;
-  }
-  return record;
-}
+let countryRecord = new QuizRecord(NUMCOUNTRIES);
 
 function updateScoreCounter(score) {
   // Update the text content of each element
@@ -352,7 +298,7 @@ let fireGroup = new FireGroup(numCols);
 let answer = '';
 let countryIndex = 0;
 let countryCode = '';
-updateCountry();
+updateCountry(countryIndex);
 
 // Powers
 let powers = [];
@@ -458,22 +404,14 @@ function playGame() {
             playGame();
             // Update record and show hint
             if (answerCorrect) {
-              countryRecord = updateRecord(
-                countryRecord,
-                countryIndex,
-                'correct'
-              );
+              countryRecord.update(countryIndex, 'correct');
               answerCorrect = false;
               // New flag
-              countryIndex = smartIndex(countryRecord);
-              updateCountry();
+              countryIndex = countryRecord.smartIndex();
+              updateCountry(countryIndex);
               tick.style.display = 'none';
             } else {
-              countryRecord = updateRecord(
-                countryRecord,
-                countryIndex,
-                'incorrect'
-              );
+              countryRecord.update(countryIndex, 'incorrect');
               // Show hint of flag
               pause = true;
               hintMenu.style.display = 'block';
@@ -481,8 +419,8 @@ function playGame() {
                 pause = false;
                 hintMenu.style.display = 'none';
                 // New flag
-                countryIndex = smartIndex(countryRecord);
-                updateCountry();
+                countryIndex = countryRecord.smartIndex();
+                updateCountry(countryIndex);
                 tick.style.display = 'none';
               }, 3000);
             }

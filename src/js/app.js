@@ -1,5 +1,5 @@
-import { Block, WaterGroup, FireGroup } from './blocks.js';
 import { QuizRecord } from './quiz.js';
+import { GridController } from './grid.js';
 
 const blockGrid = document.getElementById('blockGrid');
 const pauseMenu = document.getElementById('pauseMenu');
@@ -16,6 +16,8 @@ const hintCountry = document.getElementById('hintCountry');
 const tick = document.getElementById('tick');
 const powerImgArray = document.querySelectorAll('.powerImg');
 const powerSlotArray = document.querySelectorAll('.powerSlot');
+
+// Number of hidden rows atop grid
 const ROWBUFFER = 10;
 
 // Read in number of rows and columns from html code and set CSS style
@@ -24,12 +26,8 @@ blockGrid.style.setProperty('--rows', numRows - ROWBUFFER);
 const numCols = parseInt(blockGrid.dataset.columns, 10);
 blockGrid.style.setProperty('--columns', numCols);
 
-let blockMoveUnlocked = false;
-let blockMove = 'none';
-let pause = false;
-
 // Update powers
-export function updatePowers(powerStates) {
+function updatePowers(powerStates) {
   for (let powerId = 0; powerId < 3; powerId++) {
     if (powerId < powerStates.length) {
       if (powerStates[powerId] === 'water') {
@@ -52,66 +50,15 @@ function updateCountry({ question, answer }) {
   flagImg.src = '/assets/flags/' + question + '.svg';
   hintImg.src = '/assets/flags/' + question + '.svg';
   hintCountry.textContent = answer;
+  // You can cheat if you know where to look!
+  console.log('New country: ' + answer);
 }
-
-let countryRecord = new QuizRecord();
 
 function updateScoreCounter(score) {
   // Update the text content of each element
   scoreElements.forEach((span) => {
     span.textContent = score;
   });
-}
-
-// Function to create a grid
-function createGrid(numRows, numCols, cellStates) {
-  blockGrid.innerHTML = ''; // Clear existing grid
-
-  for (let row = ROWBUFFER; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      const square = document.createElement('div');
-      square.classList.add('square');
-      square.dataset.row = row;
-      square.dataset.col = col;
-      if (cellStates[row][col] === 1) {
-        // Stationary square
-        square.classList.add('ground');
-      } else if (cellStates[row][col] === 2) {
-        // Falling square
-        square.classList.add('falling');
-      } else if ([3, 4, 5].includes(cellStates[row][col])) {
-        // Water block, water object, inactive water object
-        square.classList.add('rain');
-      } else if ([6, 7, 8].includes(cellStates[row][col])) {
-        // Fire block, fire object, inactive fire object
-        square.classList.add('fire');
-      }
-      blockGrid.appendChild(square);
-    }
-  }
-}
-
-function eliminateRows(cellStates) {
-  // Check for full rows to eliminate
-  for (let row = ROWBUFFER; row < numRows; row++) {
-    let fullRow = true;
-    for (let col = 0; col < numCols; col++) {
-      fullRow = fullRow && cellStates[row][col] === 1;
-    }
-    if (fullRow) {
-      // Shift cell values down
-      for (let aboveRow = row; aboveRow >= 0; aboveRow--) {
-        for (let col = 0; col < numCols; col++) {
-          if (aboveRow > 0) {
-            cellStates[aboveRow][col] = cellStates[aboveRow - 1][col];
-          } else {
-            cellStates[aboveRow][col] = 0;
-          }
-        }
-      }
-    }
-  }
-  return cellStates;
 }
 
 // Add listeners for arrow key controls
@@ -143,11 +90,11 @@ document.addEventListener('keydown', function (event) {
           tick.style.display = 'block';
           score++;
           if (powers.length < 3) {
-            if (fallingBlock.blockType === 3) {
+            if (blockGridController.fallingBlock.blockType === 3) {
               powers.push('water');
               updatePowers(powers);
             }
-            if (fallingBlock.blockType === 6) {
+            if (blockGridController.fallingBlock.blockType === 6) {
               powers.push('fire');
               updatePowers(powers);
             }
@@ -216,11 +163,11 @@ enterBtn.addEventListener('click', () => {
       tick.style.display = 'block';
       score++;
       if (powers.length < 3) {
-        if (fallingBlock.blockType === 3) {
+        if (blockGridController.fallingBlock.blockType === 3) {
           powers.push('water');
           updatePowers(powers);
         }
-        if (fallingBlock.blockType === 6) {
+        if (blockGridController.fallingBlock.blockType === 6) {
           powers.push('fire');
           updatePowers(powers);
         }
@@ -258,34 +205,27 @@ powerSlotArray.forEach((slot) => {
 });
 
 // Initialise game parameters
+let blockGridController = new GridController(
+  numRows,
+  numCols,
+  ROWBUFFER,
+  blockGrid,
+  document
+);
+blockGridController.render();
+let blockMoveUnlocked = false;
+let blockMove = 'none';
+let pause = false;
+let countryRecord = new QuizRecord();
 let timeInterval = 500;
 blockMoveUnlocked = false;
-let cellStates = [];
-for (let row = 0; row < numRows; row++) {
-  cellStates[row] = [];
-  for (let col = 0; col < numCols; col++) {
-    cellStates[row][col] = 0;
-  }
-}
 let score = 0;
 
 // Hide end menu
-let end = false;
 endMenu.style.display = 'none';
-
-// Create and render fallingBlock
-let fallingBlock = new Block(numCols);
-let blockPositions = fallingBlock.shapePositions();
-for (let cell = 0; cell < 4; cell++) {
-  let cellPosition = blockPositions[cell];
-  cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
-}
+blockGridController.createFallingBlock();
 let falling = true;
 let answerCorrect = false;
-
-// Create water, fire
-let waterGroup = new WaterGroup(numCols);
-let fireGroup = new FireGroup(numCols);
 
 // Initial country
 updateCountry(countryRecord.getCurrentQA());
@@ -296,38 +236,8 @@ updatePowers(powers);
 let powerUsed = 'none';
 let powerActive = false;
 
-// Initial display
-createGrid(numRows, numCols, cellStates);
-
 // Game loop function
 function playGame() {
-  // Block move function
-  function moveBlockCheck() {
-    let moveValid = true;
-    let contactPositions = fallingBlock.contactPositions(blockMove);
-    for (let cell = 0; cell < 4; cell++) {
-      let cellPosition = contactPositions[cell];
-      moveValid =
-        moveValid &&
-        cellPosition[0] < numRows &&
-        cellStates[cellPosition[0]][cellPosition[1]] != 1;
-    }
-    if (moveValid) {
-      blockPositions = fallingBlock.shapePositions();
-      for (let cell = 0; cell < 4; cell++) {
-        let cellPosition = blockPositions[cell];
-        cellStates[cellPosition[0]][cellPosition[1]] = 0;
-      }
-      fallingBlock.move(blockMove);
-      blockPositions = fallingBlock.shapePositions();
-      for (let cell = 0; cell < 4; cell++) {
-        let cellPosition = blockPositions[cell];
-        cellStates[cellPosition[0]][cellPosition[1]] = fallingBlock.blockType;
-      }
-    }
-    return moveValid;
-  }
-
   // Game loop
   let intervalId = setInterval(() => {
     // Check unpaused
@@ -336,24 +246,20 @@ function playGame() {
         // Square movement
         if (!falling) {
           // Square falling
-          fallingBlock.reset();
-          blockPositions = fallingBlock.shapePositions();
-          for (let cell = 0; cell < 4; cell++) {
-            let cellPosition = blockPositions[cell];
-            cellStates[cellPosition[0]][cellPosition[1]] =
-              fallingBlock.blockType;
-          }
+          blockGridController.resetFallingBlock();
           falling = true;
         } else {
           // Moving block left, right, or down
           if (blockMove != 'none') {
             if (blockMoveUnlocked) {
               if (blockMove != 'down') {
-                moveBlockCheck();
+                // Left/right: move once
+                blockGridController.moveBlockCheck(blockMove);
               } else {
-                let moveValid = moveBlockCheck();
+                // Move down: push all the way to the bottom
+                let moveValid = blockGridController.moveBlockCheck(blockMove);
                 while (moveValid) {
-                  moveValid = moveBlockCheck();
+                  moveValid = blockGridController.moveBlockCheck(blockMove);
                 }
               }
               blockMove = 'none';
@@ -361,29 +267,8 @@ function playGame() {
           }
           // Transition from falling to stationary
           // Check if hit floor
-          let stillFalling = true;
-          let contactPositions = fallingBlock.contactPositions('down');
-          for (let cell = 0; cell < 4; cell++) {
-            let cellPosition = contactPositions[cell];
-            stillFalling =
-              stillFalling &&
-              cellPosition[0] < numRows &&
-              cellStates[cellPosition[0]][cellPosition[1]] != 1;
-          }
-          if (stillFalling) {
-            // Handle falling
-            blockPositions = fallingBlock.shapePositions();
-            for (let cell = 0; cell < 4; cell++) {
-              let cellPosition = blockPositions[cell];
-              cellStates[cellPosition[0]][cellPosition[1]] = 0;
-            }
-            fallingBlock.move('down');
-            blockPositions = fallingBlock.shapePositions();
-            for (let cell = 0; cell < 4; cell++) {
-              let cellPosition = blockPositions[cell];
-              cellStates[cellPosition[0]][cellPosition[1]] =
-                fallingBlock.blockType;
-            }
+          if (blockGridController.stillFallingCheck()) {
+            blockGridController.fallOneStep();
           } else {
             // Handle hitting the floor
             falling = false;
@@ -419,67 +304,38 @@ function playGame() {
               powerActive = true;
             }
             // Change to fixed cells
-            blockPositions = fallingBlock.shapePositions();
-            for (let cell = 0; cell < 4; cell++) {
-              let cellPosition = blockPositions[cell];
-              cellStates[cellPosition[0]][cellPosition[1]] = 1;
-            }
+            blockGridController.solidify();
             // Eliminate rows
-            cellStates = eliminateRows(cellStates);
+            blockGridController.eliminateRows();
           }
         }
       } else {
         // Powers
         if (powerUsed === 'water') {
-          if (!waterGroup.spawned) {
-            // Initialise
-            waterGroup.spawn(cellStates);
-          } else if (waterGroup.active) {
-            // Move
-            waterGroup.move(cellStates);
-          } else {
-            // End
-            waterGroup.solidify(cellStates);
-            powerUsed = 'none';
+          let powerEnd = blockGridController.waterMove();
+          blockGridController.render();
+          if (powerEnd) {
             powerActive = false;
-            // Eliminate rows
-            cellStates = eliminateRows(cellStates);
+            powerUsed = 'none';
           }
-          createGrid(numRows, numCols, cellStates);
         } else if (powerUsed === 'fire') {
-          if (!fireGroup.spawned) {
-            // Initialise
-            fireGroup.spawn(cellStates);
-          } else if (fireGroup.active) {
-            // Move
-            fireGroup.move(numRows, numCols, cellStates);
-          } else {
-            // End
-            fireGroup.despawn(numRows, numCols, cellStates);
-            powerUsed = 'none';
+          let powerEnd = blockGridController.fireMove();
+          blockGridController.render();
+          if (powerEnd) {
             powerActive = false;
+            powerUsed = 'none';
           }
-          createGrid(numRows, numCols, cellStates);
         }
       }
     }
 
     // Game over
-    for (let row = 0; row < ROWBUFFER; row++) {
-      for (let col = 0; col < numCols; col++) {
-        if (cellStates[row][col] === 1) {
-          clearInterval(intervalId);
-          end = true;
-        }
-      }
-    }
-
-    if (end) {
+    if (blockGridController.gameOver()) {
+      clearInterval(intervalId);
       // Display end Menu and score
       endMenu.style.display = 'block';
     }
-
-    createGrid(numRows, numCols, cellStates);
+    blockGridController.render();
   }, timeInterval);
 }
 

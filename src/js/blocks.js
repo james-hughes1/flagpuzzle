@@ -30,6 +30,7 @@ export class Block {
     ]);
   }
   contactPositions(dir) {
+    // Get the positions of the blocks shifted 1 in the direction specified
     if (dir === 'down') {
       return this.shape.map((x) => [
         x[0] + this.topLeftPosition.row + 1,

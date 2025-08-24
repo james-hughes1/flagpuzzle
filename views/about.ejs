@@ -26,5 +26,16 @@
     setupKeyboard('#keyboard', '#userInput');
   </script>
 
+  <!-- Leaderboard -->
+  <section id="leaderboard">
+  <h2>Leaderboard</h2>
+  <ul>
+    <% scores.forEach(s => { %>
+      <li><%= s.username %> — <%= s.score %></li>
+    <% }) %>
+  </ul>
+  </section>
+  <script src="/leaderboard.js"></script>
+
 </body>
 </html>

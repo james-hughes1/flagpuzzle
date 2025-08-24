@@ -56,6 +56,14 @@
   <!-- Pop Up Menus -->
   <div id="pauseMenu">
     <p>Paused</p>
+    <section id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul>
+      <% scores.forEach(s => { %>
+        <li><%= s.username %> — <%= s.score %></li>
+      <% }) %>
+    </ul>
+    </section>
     <button id="resumeBtn">Resume</button>
   </div>
   <div id="endMenu">
@@ -70,6 +78,9 @@
     </div>
     <p id="hintCountry">USA</p>
   </div>
+  <script>
+    window.USERNAME = "<%= username %>";
+  </script>
   <script type="module" src="/js/app.js" defer></script>
 </body>
 </html>

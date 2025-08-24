@@ -1,5 +1,6 @@
 import { QuizRecord } from './quiz.js';
 import { GridController } from './grid.js';
+import { submitScore } from './leaderboard.js';
 
 const blockGrid = document.getElementById('blockGrid');
 const pauseMenu = document.getElementById('pauseMenu');
@@ -217,7 +218,7 @@ let blockMoveUnlocked = false;
 let blockMove = 'none';
 let pause = false;
 let countryRecord = new QuizRecord();
-let timeInterval = 500;
+let timeInterval = 100;
 blockMoveUnlocked = false;
 let score = 0;
 
@@ -334,9 +335,14 @@ function playGame() {
       clearInterval(intervalId);
       // Display end Menu and score
       endMenu.style.display = 'block';
+      submitScore(window.USERNAME, score);
     }
     blockGridController.render();
   }, timeInterval);
 }
+
+console.log(`Player name: ${window.USERNAME}, score: ${score}`);
+// Test
+submitScore('testName', 12345);
 
 playGame();

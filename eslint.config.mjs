@@ -13,17 +13,30 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default defineConfig([{
+export default defineConfig([
+  {
     extends: compat.extends("eslint:recommended", "prettier"),
 
     languageOptions: {
-        globals: {
-            ...globals.browser,
-        },
-
-        ecmaVersion: 12,
-        sourceType: "module",
+      globals: {
+        ...globals.browser,
+      },
+      ecmaVersion: 12,
+      sourceType: "module",
     },
 
     rules: {},
-}]);
+  },
+  // Node-specific override
+  {
+    files: ["server.js"], // or ["*.js"] if multiple Node files
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-undef": "off", // allow require
+    },
+  },
+]);

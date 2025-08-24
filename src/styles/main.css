@@ -1,0 +1,28 @@
+/* Body styling */
+body {
+    font-family: Arial, sans-serif;
+    color: white;
+    height: 90vh;
+    background-color: cyan;
+    justify-content: center;
+    overflow-y: hidden; /* Disable vertical scrolling */
+    overflow-x: hidden; /* Disable horizontal scrolling */
+}
+
+h1 {
+    text-align: center;
+    height: 5%;
+    font-size: medium;
+    color: black;
+}
+
+#userEnter {
+    text-align: center;
+    font-size: medium;
+    color: black;
+    align-items: center;
+}
+
+button {
+    justify-content: center;
+}

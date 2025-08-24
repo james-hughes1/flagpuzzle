@@ -1,0 +1,62 @@
+/* Keyboard on mobile */
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 35px);
+    grid-template-rows: repeat(3, 35px);
+    grid-gap: 3px;
+    justify-content: center;
+    margin-top: 3px;
+}
+
+.key {
+    padding: 3px;
+    font-size: 8px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: black;
+    font-size: large;
+    border-radius: 1px;
+}
+
+.specialKey {
+    padding: 3px;
+    font-size: 8px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: black;
+    font-size: large;
+    border-radius: 1px;
+}
+
+.key:active {
+    background-color: #ddd;
+}
+
+/* Hide the keyboard by default on desktop */
+#keyboard {
+    display: none;
+}
+
+/* Show the keyboard only on mobile and make text box readonly*/
+@media (max-width: 768px) {
+    #keyboard {
+        display: grid;
+        grid-template-columns: repeat(10, 35px);
+        grid-template-rows: repeat(3, 35px);
+        grid-gap: 3px;
+        justify-content: center;
+        margin-top: 3px;
+    }
+
+    #answerInput {
+        pointer-events: none; /* Prevents manual typing */
+        touch-action: none; /* Disables mobile keyboard */
+    }
+
+    #userInput {
+        pointer-events: none; /* Prevents manual typing */
+        touch-action: none; /* Disables mobile keyboard */
+    }
+}

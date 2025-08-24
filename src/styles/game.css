@@ -1,32 +1,3 @@
-/* Body styling */
-body {
-    font-family: Arial, sans-serif;
-    color: white;
-    height: 90vh;
-    background-color: cyan;
-    justify-content: center;
-    overflow-y: hidden; /* Disable vertical scrolling */
-    overflow-x: hidden; /* Disable horizontal scrolling */
-}
-
-h1 {
-    text-align: center;
-    height: 5%;
-    font-size: medium;
-    color: black;
-}
-
-#userEnter {
-    text-align: center;
-    font-size: medium;
-    color: black;
-    align-items: center;
-}
-
-button {
-    justify-content: center;
-}
-
 /* Main game container */
 #gameContainer {
     display: grid;
@@ -112,51 +83,6 @@ button {
     left: 30%;
     width: 40%;
     height: auto;
-}
-
-/* Pause Menu Pop Up*/
-#pauseMenu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: black;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    border-radius: 8px;
-}
-
-/* End Menu Pop Up*/
-#endMenu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: black;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    border-radius: 8px;
-}
-
-/* Hint Menu Pop Up*/
-#hintMenu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: black;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    border-radius: 8px;
 }
 
 /* Style for the squares */
@@ -248,68 +174,5 @@ button {
         left: 30%;
         width: 40%;
         height: auto;
-    }
-}
-
-/* Keyboard on mobile */
-.keyboard {
-    display: grid;
-    grid-template-columns: repeat(10, 35px);
-    grid-template-rows: repeat(3, 35px);
-    grid-gap: 3px;
-    justify-content: center;
-    margin-top: 3px;
-}
-
-.key {
-    padding: 3px;
-    font-size: 8px;
-    cursor: pointer;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    color: black;
-    font-size: large;
-    border-radius: 1px;
-}
-
-.specialKey {
-    padding: 3px;
-    font-size: 8px;
-    cursor: pointer;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    color: black;
-    font-size: large;
-    border-radius: 1px;
-}
-
-.key:active {
-    background-color: #ddd;
-}
-
-/* Hide the keyboard by default on desktop */
-#keyboard {
-    display: none;
-}
-
-/* Show the keyboard only on mobile and make text box readonly*/
-@media (max-width: 768px) {
-    #keyboard {
-        display: grid;
-        grid-template-columns: repeat(10, 35px);
-        grid-template-rows: repeat(3, 35px);
-        grid-gap: 3px;
-        justify-content: center;
-        margin-top: 3px;
-    }
-
-    #answerInput {
-        pointer-events: none; /* Prevents manual typing */
-        touch-action: none; /* Disables mobile keyboard */
-    }
-
-    #userInput {
-        pointer-events: none; /* Prevents manual typing */
-        touch-action: none; /* Disables mobile keyboard */
     }
 }

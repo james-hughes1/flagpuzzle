@@ -1,4 +1,4 @@
-import { SHAPES } from './shapes.js';
+import { SHAPES } from '../assets/shapes.js';
 
 export class Block {
   constructor(numCols) {

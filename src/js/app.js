@@ -28,15 +28,6 @@ let blockMoveUnlocked = false;
 let blockMove = 'none';
 let pause = false;
 
-const NUMCOUNTRIES = 246;
-
-// Async function to country code mapping
-export async function loadCountries() {
-  const response = await fetch('assets/iso-alpha-2.json');
-  const data = await response.json();
-  return data;
-}
-
 // Update powers
 export function updatePowers(powerStates) {
   for (let powerId = 0; powerId < 3; powerId++) {
@@ -56,18 +47,14 @@ export function updatePowers(powerStates) {
   }
 }
 
-// Function to get country
-export async function updateCountry(countryIndex) {
-  const countriesData = await loadCountries();
-  const countries = Object.entries(countriesData);
-  countryCode = countries[countryIndex][1]['alpha-2'].toLowerCase();
-  answer = countries[countryIndex][1]['name'];
-  flagImg.src = '/assets/flags/' + countryCode + '.svg';
-  hintImg.src = '/assets/flags/' + countryCode + '.svg';
+// Function to update country assets in game
+function updateCountry({ question, answer }) {
+  flagImg.src = '/assets/flags/' + question + '.svg';
+  hintImg.src = '/assets/flags/' + question + '.svg';
   hintCountry.textContent = answer;
 }
 
-let countryRecord = new QuizRecord(NUMCOUNTRIES);
+let countryRecord = new QuizRecord();
 
 function updateScoreCounter(score) {
   // Update the text content of each element
@@ -147,7 +134,10 @@ document.addEventListener('keydown', function (event) {
       break;
     case 'Enter':
       if (!pause && !powerActive) {
-        if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+        if (
+          answerInput.value.toLowerCase() !=
+          countryRecord.getCurrentQA().answer.toLowerCase()
+        ) {
           blockMove = 'down';
         } else {
           tick.style.display = 'block';
@@ -217,7 +207,10 @@ function handleSwipe() {
 // Enter button - same as clicking Enter
 enterBtn.addEventListener('click', () => {
   if (!pause && !powerActive) {
-    if (answerInput.value.toLowerCase() != answer.toLowerCase()) {
+    if (
+      answerInput.value.toLowerCase() !=
+      countryRecord.getCurrentQA().answer.toLowerCase()
+    ) {
       blockMove = 'down';
     } else {
       tick.style.display = 'block';
@@ -295,10 +288,7 @@ let waterGroup = new WaterGroup(numCols);
 let fireGroup = new FireGroup(numCols);
 
 // Initial country
-let answer = '';
-let countryIndex = 0;
-let countryCode = '';
-updateCountry(countryIndex);
+updateCountry(countryRecord.getCurrentQA());
 
 // Powers
 let powers = [];
@@ -404,14 +394,14 @@ function playGame() {
             playGame();
             // Update record and show hint
             if (answerCorrect) {
-              countryRecord.update(countryIndex, 'correct');
+              countryRecord.update('correct');
               answerCorrect = false;
               // New flag
-              countryIndex = countryRecord.smartIndex();
-              updateCountry(countryIndex);
+              countryRecord.updateIndex();
+              updateCountry(countryRecord.getCurrentQA());
               tick.style.display = 'none';
             } else {
-              countryRecord.update(countryIndex, 'incorrect');
+              countryRecord.update('incorrect');
               // Show hint of flag
               pause = true;
               hintMenu.style.display = 'block';
@@ -419,8 +409,8 @@ function playGame() {
                 pause = false;
                 hintMenu.style.display = 'none';
                 // New flag
-                countryIndex = countryRecord.smartIndex();
-                updateCountry(countryIndex);
+                countryRecord.updateIndex();
+                updateCountry(countryRecord.getCurrentQA());
                 tick.style.display = 'none';
               }, 3000);
             }

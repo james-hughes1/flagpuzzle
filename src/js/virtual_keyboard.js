@@ -1,29 +1,83 @@
-const userInput = document.getElementById('userInput');
-const keys = document.querySelectorAll('.key');
-const spaceButton = document.getElementById('space');
-const backspaceButton = document.getElementById('backspace');
-const clearButton = document.getElementById('clear');
+// virtual_keyboard.js
+export function createKeyboard(targetSelector) {
+  const keys = [
+    'q',
+    'w',
+    'e',
+    'r',
+    't',
+    'y',
+    'u',
+    'i',
+    'o',
+    'p',
+    'a',
+    's',
+    'd',
+    'f',
+    'g',
+    'h',
+    'j',
+    'k',
+    'l',
+    'z',
+    'x',
+    'c',
+    'v',
+    'b',
+    'n',
+    'm',
+  ];
 
-// Keyboard actions
-// Add event listeners for the keys
-keys.forEach((key) => {
-  key.addEventListener('click', function () {
-    const keyValue = key.getAttribute('data-key');
-    userInput.value += keyValue;
+  const specialKeys = [
+    { id: 'space', label: '_' },
+    { id: 'backspace', label: '<' },
+    { id: 'clear', label: '<<' },
+  ];
+
+  const container = document.querySelector(targetSelector);
+  if (!container) return;
+
+  // Add normal keys
+  keys.forEach((key) => {
+    const btn = document.createElement('button');
+    btn.className = 'key';
+    btn.dataset.key = key;
+    btn.textContent = key.toUpperCase();
+    container.appendChild(btn);
   });
-});
 
-// Space button
-spaceButton.addEventListener('click', function () {
-  userInput.value += ' ';
-});
+  // Add special keys
+  specialKeys.forEach(({ id, label }) => {
+    const btn = document.createElement('button');
+    btn.className = 'specialKey';
+    btn.id = id;
+    btn.textContent = label;
+    container.appendChild(btn);
+  });
+}
 
-// Backspace button
-backspaceButton.addEventListener('click', function () {
-  userInput.value = userInput.value.slice(0, -1);
-});
+export function setupKeyboard(targetSelector, inputSelector) {
+  const container = document.querySelector(targetSelector);
+  const userInput = document.querySelector(inputSelector);
+  if (!container || !userInput) return;
 
-// Clear button
-clearButton.addEventListener('click', function () {
-  userInput.value = '';
-});
+  container.addEventListener('click', (e) => {
+    if (!e.target.matches('button')) return;
+
+    const key = e.target.dataset.key;
+    switch (e.target.id) {
+      case 'space':
+        userInput.value += ' ';
+        break;
+      case 'backspace':
+        userInput.value = userInput.value.slice(0, -1);
+        break;
+      case 'clear':
+        userInput.value = '';
+        break;
+      default:
+        if (key) userInput.value += key;
+    }
+  });
+}

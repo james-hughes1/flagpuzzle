@@ -1,4 +1,4 @@
-// Alpha-2 codes and names; some omitted due to name length!
+// Alpha-2 codes and names; some omitted due to name length/.svg not present
 
 export const COUNTRIES = [
   { question: 'ad', answer: 'Andorra' },
@@ -111,7 +111,6 @@ export const COUNTRIES = [
   { question: 'jo', answer: 'Jordan' },
   { question: 'jp', answer: 'Japan' },
   { question: 'ke', answer: 'Kenya' },
-  { question: 'kf', answer: 'Kofiau and Biak' },
   { question: 'kg', answer: 'Kyrgyzstan' },
   { question: 'kh', answer: 'Cambodia' },
   { question: 'ki', answer: 'Kiribati' },

@@ -218,7 +218,7 @@ let blockMoveUnlocked = false;
 let blockMove = 'none';
 let pause = false;
 let countryRecord = new QuizRecord();
-let timeInterval = 100;
+let timeInterval = 500;
 blockMoveUnlocked = false;
 let score = 0;
 
@@ -342,7 +342,5 @@ function playGame() {
 }
 
 console.log(`Player name: ${window.USERNAME}, score: ${score}`);
-// Test
-submitScore('testName', 12345);
 
 playGame();

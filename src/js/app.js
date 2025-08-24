@@ -221,6 +221,7 @@ let countryRecord = new QuizRecord();
 let timeInterval = 500;
 blockMoveUnlocked = false;
 let score = 0;
+let scoreSubmitted = false;
 
 // Hide end menu
 endMenu.style.display = 'none';
@@ -335,7 +336,10 @@ function playGame() {
       clearInterval(intervalId);
       // Display end Menu and score
       endMenu.style.display = 'block';
-      submitScore(window.USERNAME, score);
+      if (!scoreSubmitted) {
+        submitScore(window.USERNAME, score);
+        scoreSubmitted = true;
+      }
     }
     blockGridController.render();
   }, timeInterval);

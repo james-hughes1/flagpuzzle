@@ -2,17 +2,16 @@
 
 ## About
 
-More info coming soon...
+A project that helped me to learn javascript. You race to fit blocks into place as they fall, whilst also scoring points by answering the correct country that matches the flag. At the end, your score is added to a leaderboard on MongoDB which actually updates.
 
 ## Tools
 
  - **Javascript.** Used to write code that defines the functionality of the app.
  - **CSS.** Defines the styling of the website frontend.
  - **npm.** Package & dependency manager
- - **node.js & vite.** Enable Javascript code to be run on a server (and a local dev server)
-    - Run `n ` to start the server.
-    - Run `npm run dev` calls on vite, running the local dev server for testing.
- - **Express.** Middleware.
+ - **node.js** Enable Javascript code to be run on a server (and a local dev server)
+    - Run `npm start` to start the server.
+ - **Husky, ESLint & Prettier.** Continuous integration tools that ensure consistent code formatting for js.
  - **MongoDB.** Database.
  - **EJS.** Views.
 

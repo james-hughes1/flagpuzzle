@@ -64,6 +64,14 @@
     gap: 10px; /* Adds spacing between elements */
 }
 
+/* Flex container for buttons */
+.input-container {
+  display: flex;
+  justify-content: center;  /* centers horizontally */
+  gap: 1rem;                /* space between buttons */
+  margin-top: 1rem;
+}
+
 /* Image container */
 .image-container {
     text-align: center;

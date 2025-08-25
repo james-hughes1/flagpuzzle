@@ -7,6 +7,7 @@ body {
     justify-content: center;
     overflow-y: hidden; /* Disable vertical scrolling */
     overflow-x: hidden; /* Disable horizontal scrolling */
+    touch-action: manipulation; /* Prevent double tap zoom mobile */
 }
 
 h1 {

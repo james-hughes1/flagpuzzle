@@ -37,7 +37,6 @@
         <img id="flagImg" src="/assets/flags/us.svg" alt="Flag">
         <img id="tick" src="assets/tick2.png" alt="Tick">
       </div>
-      <input type="text" id="answerInput" placeholder="Type your answer here">
       
       <!-- Virtual Keyboard -->
       <!-- Virtual Keyboard -->
@@ -47,9 +46,11 @@
         createKeyboard('#keyboard');
         setupKeyboard('#keyboard', '#answerInput');
       </script>
-
-      <button id="enterBtn">Enter</button>
-      <button id="pauseBtn">Pause</button>
+      <div id="input-container">
+        <input type="text" id="answerInput" placeholder="Type your answer here">
+        <button id="enterBtn">Enter</button>
+        <button id="pauseBtn">Pause</button>
+      </div>
     </div>
   </div>
 
